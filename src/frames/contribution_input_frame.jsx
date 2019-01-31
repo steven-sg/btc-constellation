@@ -3,10 +3,6 @@ import { Tab } from 'semantic-ui-react';
 import ContributionInputManualFrame from './contribution_input_manual_frame';
 
 class ContributionInputFrame extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {transaction: null}
-  }
 
   render() {
     return (

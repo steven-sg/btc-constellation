@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import BalanceSegment from './balance_segment';
 import FeeSegment from './fee_segment';
-import List from './list';
+import PaymentList from './payment_list';
 import PaymentInputFrame from './payment_input_frame';
 import { gold } from '../style/colors';
 import { Dropdown, Menu, Button } from 'semantic-ui-react'
@@ -13,11 +13,14 @@ class ContributionFrame extends Component {
   }
 
   render() {
+    const contributions = this.props.contributions;
+    const balance = contributions.reduce((sum, a) => sum + Number(a.output.balance), 0);
+
     return (
       <div style={{width:'100%', flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
-        <BalanceSegment />
-        <PaymentInputFrame />
-        <List />
+        <BalanceSegment balance={balance}/>
+        <PaymentInputFrame callback={this.props.callback}/>
+        <PaymentList payments={this.props.payments}/>
         <FeeSegment />
       </div>
     );

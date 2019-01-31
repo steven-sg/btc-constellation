@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import GridInputForm from './grid_input_form';
-import { transaction} from 'easy_btc';
+import { transaction } from 'easy_btc';
 
 class ContributionInputManualFrame extends Component {
 
@@ -35,11 +35,8 @@ class ContributionInputManualFrame extends Component {
   }
 
   callback = (state) => {
-    alert(JSON.stringify(state));
     const transactionOutput = [new transaction.TransactionOutput(state['Output Index'], state['ScriptPubKey'], state['Balance'])];
-    const tx = new transaction.Transaction(state['Transaction Hash'], [transactionOutput]);
-    alert(JSON.stringify(transactionOutput));
-    alert(JSON.stringify(tx));
+    const tx = new transaction.Transaction(state['Transaction Hash'], transactionOutput);
     this.props.callback(tx);
   }
 
