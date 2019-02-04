@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import GridInputForm from './grid_input_form';
-import { transaction } from 'easy_btc';
+import { transaction, unloggedUtils } from 'easy_btc';
 
 class ContributionInputManualFrame extends Component {
 
@@ -28,14 +28,15 @@ class ContributionInputManualFrame extends Component {
       {
         label: 'Balance',
         name: 'Balance',
-        placeholder: 'Balance',
+        placeholder: `Balance (${this.props.currency})`,
         width: 6,
       }]
     ]
   }
 
   callback = (state) => {
-    const transactionOutput = [new transaction.TransactionOutput(state['Output Index'], state['ScriptPubKey'], state['Balance'])];
+    const balance = unloggedUtils.convertCurrencyTo(state['Balance'], 'satoshi', this.props.currency);
+    const transactionOutput = [new transaction.TransactionOutput(state['Output Index'], state['ScriptPubKey'], balance)];
     const tx = new transaction.Transaction(state['Transaction Hash'], transactionOutput);
     this.props.callback(tx);
   }

@@ -18,7 +18,7 @@ class ContributionFrame extends Component {
 
     return (
       <div style={{width:'100%', flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
-        <BalanceSegment balance={balance}/>
+        <BalanceSegment balance={balance} currency={this.props.currency} callback={this.props.setCurrency}/>
         <PaymentInputFrame callback={this.props.callback}/>
         <PaymentList payments={this.props.payments}/>
         <FeeSegment />

@@ -25,10 +25,10 @@ class ContributionFrame extends Component {
     const contributions = this.props.contributions;
     const balance = contributions.reduce((sum, a) => sum + Number(a.output.balance), 0);
     return (
-      <div style={{width:'100%', flexGrow: '1', display: 'flex', flexDirection:'column'}}>
-        <ContributionInputFrame style={{flexBasis: 0}} callback={this.props.callback}/>
-        <ContributionList contributions={contributions}/>
-        <BalanceSegment balance={balance}/>
+      <div style={{flexGrow: '1', display: 'flex', flexDirection:'column'}}>
+        <ContributionInputFrame callback={this.props.addTransaction} currency={this.props.currency}/>
+        <ContributionList contributions={contributions} callback={this.props.removeTransaction} currency={this.props.currency}/>
+        <BalanceSegment balance={balance} currency={this.props.currency} callback={this.props.setCurrency}/>
       </div>
     );
   }

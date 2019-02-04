@@ -23,11 +23,11 @@ class PaymentList extends Component {
 
   render() {
     return (
-        <List style={{ flexBasis: 1, flexShrink: 1, flexGrow: 1, overflowY:'scroll'}}>
+        <div style={{ flexBasis: 1, flexShrink: 1, flexGrow: 1, overflowY:'scroll'}}>
           <Segment.Group>
             {this.renderSegments()}
           </Segment.Group>
-        </List>
+        </div>
     );
   }
 }

@@ -1,17 +1,12 @@
 import React, { Component } from 'react';
 import { Menu, Dropdown } from 'semantic-ui-react'
+import { unloggedUtils } from 'easy_btc';
 
 const options = [
   { key: 0, text: 'Satoshi', value: 'Satoshi' },
   { key: 1, text: 'mBTC', value: 'mBTC' },
   { key: 2, text: 'BTC', value: 'BTC' },
 ];
-
-const fromSatoshiConversion = {
-  Satoshi: (val) => (val),
-  mBTC: (val) => (val / 100000),
-  BTC: (val) => (val / 100000000).toFixed(8),
-}
 
 class BalanceSegment extends Component {
   constructor(props) {
@@ -20,19 +15,20 @@ class BalanceSegment extends Component {
   }
 
   handleChange = (e, { value }) => {
-    this.setState({ dropdownValue: value });
+    this.props.callback(value);
   }
 
   render() {
-    const { dropdownValue } = this.state;
-    const balance = fromSatoshiConversion[dropdownValue](this.props.balance) || 0;
+    const { currency } = this.props;
+    const balance = this.props.balance? unloggedUtils.convertCurrencyTo(this.props.balance, currency) : 0;
     return (
-      <Menu>
+      <Menu style={{margin: '0.5rem'}}>
         <Menu.Menu position='right'>
             <div className='ui transparent icon input'>
               <input className='prompt' style={{textAlign: 'right'}} type='text' placeholder='Balance' value={balance} disabled/>
             </div>
-          <Dropdown value={dropdownValue} direction='right' options={options} onChange={this.handleChange} item simple/>
+          {/* <Dropdown value={dropdownValue} direction='right' options={options} onChange={this.handleChange} item simple/> */}
+          <Dropdown item upward value={currency} options={options} onChange={this.handleChange}/>
         </Menu.Menu>
       </Menu>
     );

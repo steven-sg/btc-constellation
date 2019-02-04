@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { Button } from 'semantic-ui-react'
+import { Button, Dimmer, Loader } from 'semantic-ui-react'
 import ContributionFrame from './contribution_frame';
 import PaymentFrame from './payment_frame';
 import ErrorFrame from './error_frame';
 import TransactionFrame from './transaction_frame';
 import SigningFrame from './signing_frame';
+import TransactionModel from './transaction_publish_model';
+import { transaction } from 'easy_btc';
 
 const contributionFrameMeta = {
   value: 'contribution',
@@ -37,12 +39,24 @@ class CenterFrame extends Component {
       txs: [],
       payments: [],
       privKeys: {},
+      modTx: null,
+      published: false,
+      publishMessage: null,
+      loading: false,
+      currency: 'Satoshi',
     };
   }
 
-  appendToTransaction = (tx) => {
+  addTransaction = (tx) => {
     let txs = this.state.txs.slice(0);
     txs.push(tx);
+    this.setState({txs});
+  }
+
+  removeTransaction = (txHash, outputIndex) => {
+    const txs = this.state.txs.filter((transaction)=>{
+      return transaction.txHash !== txHash && !transaction.outputs[outputIndex];
+    });
     this.setState({txs});
   }
 
@@ -58,6 +72,9 @@ class CenterFrame extends Component {
     this.setState({privKeys});
   }
 
+  setCurrency = (currency) => {
+    this.setState({currency});
+  }
   validate = () => {
     switch (this.state.frame.value) {
       case 'contribution':
@@ -85,7 +102,7 @@ class CenterFrame extends Component {
 
   validatePrivKeys = () => {
     const privKeysArg = [];
-    let validation = true;
+    let isValid = true;
 
     this.contributions.forEach(contribution => {
       const priv = this.state.privKeys[contribution.txHash];
@@ -93,11 +110,16 @@ class CenterFrame extends Component {
         privKeysArg.push(priv);
         return;
       }
-      validation = false;
+      isValid = false;
     });
 
-    this.setState({privKeysArg});
-    return validation;
+    if (isValid) {
+      const modTx = new transaction.ModularTransaction(this.contributions, this.state.payments);
+      modTx.createRawTransaction();
+      modTx.signTransaction(privKeysArg);
+      this.setState({privKeysArg, modTx});
+    }
+    return isValid;
   }
 
   get contributions () {
@@ -109,27 +131,30 @@ class CenterFrame extends Component {
   get frame () {
     switch (this.state.frame.value) {
       case 'contribution':
-        return (<ContributionFrame callback={this.appendToTransaction}
-                                   contributions={this.contributions} />);
+        return (<ContributionFrame addTransaction={this.addTransaction}
+                                   removeTransaction={this.removeTransaction}
+                                   contributions={this.contributions} 
+                                   currency={this.state.currency}
+                                   setCurrency={this.setCurrency}/>);
       case 'payment':
         return (<PaymentFrame callback={this.appendToPayments}
                               contributions={this.contributions}
-                              payments={this.state.payments} />);
+                              payments={this.state.payments}
+                              currency={this.state.currency}
+                              setCurrency={this.setCurrency}/>);
       case 'signing':
         return <SigningFrame transactions={this.state.txs} callback={this.appendToPrivateKeys} />;
-        // return <StickyExampleAdjacentContext />;
       case 'transaction':
-        return <TransactionFrame contributions={this.contributions} payments={this.state.payments} privKeys={this.state.privKeysArg}/>;
-        // return <StickyExampleAdjacentContext />;
+        return <TransactionFrame contributions={this.contributions} payments={this.state.payments} privKeys={this.state.privKeysArg} transaction={this.state.modTx}/>;
       default:
         return <ErrorFrame />;
     }
   }
 
   get navigationButtons () {
-    const nextNavButton = (<Button style={{float: 'right'}} content='Next' value='next'
+    const nextNavButton = (<Button style={{float: 'right', margin: 0}} content='Next' value='next'
                                    icon='right arrow' labelPosition='right' onClick={this.handleClick}/>)
-    const backNavButton = (<Button style={{float: 'left'}} content='Back' value='back'
+    const backNavButton = (<Button style={{float: 'left', margin: 0}} content='Back' value='back'
                                    icon='left arrow' labelPosition='left' onClick={this.handleClick}/>);
     const buttons = [];
     switch (this.state.frame.value) {
@@ -145,6 +170,9 @@ class CenterFrame extends Component {
         buttons.push(backNavButton);
         break;
       case 'transaction':
+        const publishButton = (<Button style={{float: 'right'}} content='Publish Transaction' value='publish'
+                                      icon='right arrow' labelPosition='right' onClick={this.publish}/>);
+        buttons.push(publishButton);
         buttons.push(backNavButton);
         break;
       default:
@@ -164,11 +192,25 @@ class CenterFrame extends Component {
     this.setState({frame});
   }
 
+  publish = () => {
+    this.setState({loading: true})
+    this.state.modTx.pushtx()
+      .catch((error) => {
+        return error;
+      }).then((response) => {
+        this.setState({loading: false, publish: true, publishMessage: response})
+      });
+  }
+
   render() {
     return (
       <div style={{height: '100%', width:'100%', display: 'flex', flexDirection: 'column'}}>
+        <Dimmer active={this.state.loading}>
+          <Loader />
+        </Dimmer>
+        {/* {this.state.published && <TransactionModel message={this.state.publishMessage} open/>} */}
         {this.frame}
-        <div style={{flexBasis: 0, marginTop: '1rem'}}>
+        <div style={{margin: '0.5rem'}}>
           {this.navigationButtons}
         </div>
       </div>
