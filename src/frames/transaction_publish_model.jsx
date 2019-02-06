@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Header, Image, Modal } from 'semantic-ui-react'
+import { Header, Modal } from 'semantic-ui-react'
 
 class ModalModalExample extends Component {
   constructor(props) {
@@ -18,7 +18,7 @@ class ModalModalExample extends Component {
         <Modal.Header>Transaction Success</Modal.Header>
         <Modal.Content image>
           <Modal.Description>
-            {/* <Header>Default Profile Image</Header> */}
+            <Header>Default Profile Image</Header>
             {this.props.message}
           </Modal.Description>
         </Modal.Content>

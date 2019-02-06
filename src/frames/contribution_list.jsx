@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { List } from 'semantic-ui-react'
 import { Segment, Button } from 'semantic-ui-react'
 import ReactResizeDetector from 'react-resize-detector';
 import { unloggedUtils } from 'easy_btc';
@@ -10,21 +9,25 @@ class ContributionList extends Component {
     this.state = {};
   }
   
-  handleClick = (e, {txHash, outputIndex}) => {
-    this.props.callback(txHash, outputIndex);
+  handleClick = (e, {txhash, outputindex}) => {
+    this.props.callback(txhash, outputindex);
   }
 
   convertbalance = (balance) => {
-    return unloggedUtils.convertCurrencyTo(balance, this.props.currency);
+    if (balance) {
+      return unloggedUtils.convertCurrencyTo(balance, this.props.currency);
+    }
+    return 'unknown';
   }
 
   renderSegments = () => {
-    let segments = this.props.contributions.map(contribution => {
+    let segments = this.props.contributions.map((contribution) => {
+      const contributionId = `${contribution.txHash}:${contribution.output.outputIndex}`;
       return (
-        <Segment style={{display: 'flex', alignItems: 'center'}}>
-          <Button style={{boxShadow: 'noneƒ', marginRight: '1rem'}} basic transparent size='small' icon='times' onClick={this.handleClick} txHash={contribution.output.txHash} outputIndex={contribution.output.outputIndex}/>
-          <p style={{display: 'inline', flexGrow: 1, marginBottom: '0'}}>{`${contribution.txHash}:${contribution.output.outputIndex}`}</p>
-          <p style={{display: 'inline'}}>{`${this.convertbalance(contribution.output.balance)} ${this.props.currency}`}</p>
+        <Segment key={contributionId} style={{display: 'flex', alignItems: 'center'}}>
+          <Button style={{boxShadow: 'noneƒ', marginRight: '1rem'}} basic size='small' icon='times' onClick={this.handleClick} txhash={contribution.output.txHash} outputindex={contribution.output.outputIndex}/>
+          <p style={{display: 'inline', flexGrow: 1, marginBottom: '0', marginRight: '1rem', overflowX: 'auto'}}>{contributionId}</p>
+          <p style={{display: 'inline', overflowX: 'auto'}}>{`${this.convertbalance(contribution.output.balance)} ${this.props.currency}`}</p>
         </Segment>
       )
     });
@@ -33,7 +36,7 @@ class ContributionList extends Component {
 
   render() {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', flexShrink: 1, flexGrow: 1, overflowY:'scroll', paddingRight: '0.5rem', margin:'0.5rem'}}>
+        <div style={{ display: 'flex', flexDirection: 'column', flexShrink: 1, flexGrow: 1, overflowY:'scroll', overflowX:'auto', paddingRight: '0.5rem', margin:'0.5rem'}}>
           <Segment.Group style={{margin: 0}}>
             {this.renderSegments()}
           </Segment.Group>

@@ -9,7 +9,11 @@ class ContributionInputFrame extends Component {
       <div style={{margin: '0.5rem'}}>
         <Tab menu={{ pointing: true, attached: true}}
             panes={[{ menuItem: 'Automatic', render: () => <Tab.Pane> Under Development </Tab.Pane> },
-                    { menuItem: 'Manual', render: () => <Tab.Pane><ContributionInputManualFrame callback={this.props.callback} currency={this.props.currency}/> </Tab.Pane> }]} />
+                    { menuItem: 'Manual', render: () => (
+                      <Tab.Pane>
+                        <ContributionInputManualFrame callback={this.props.callback}
+                                                      currency={this.props.currency}/>
+                      </Tab.Pane>)}]}/>
       </div>
     );
   }

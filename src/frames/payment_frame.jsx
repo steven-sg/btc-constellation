@@ -3,8 +3,6 @@ import BalanceSegment from './balance_segment';
 import FeeSegment from './fee_segment';
 import PaymentList from './payment_list';
 import PaymentInputFrame from './payment_input_frame';
-import { gold } from '../style/colors';
-import { Dropdown, Menu, Button } from 'semantic-ui-react'
 
 class ContributionFrame extends Component {
   constructor(props) {

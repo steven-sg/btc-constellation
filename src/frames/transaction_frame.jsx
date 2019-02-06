@@ -2,7 +2,7 @@ import React, { Component }from 'react';
 import ComplexSegmentGroup from './segment';
 import { utils } from 'easy_btc';
 import { Segment } from 'semantic-ui-react'
-import TransactionTable from '../decode';
+// import TransactionTable from '../decode';
 
 class TxBreakdown extends Component {
 

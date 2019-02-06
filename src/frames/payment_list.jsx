@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { List } from 'semantic-ui-react'
 import { Segment, Button } from 'semantic-ui-react'
 
 class PaymentList extends Component {

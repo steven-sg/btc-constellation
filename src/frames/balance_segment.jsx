@@ -20,7 +20,7 @@ class BalanceSegment extends Component {
 
   render() {
     const { currency } = this.props;
-    const balance = this.props.balance? unloggedUtils.convertCurrencyTo(this.props.balance, currency) : 0;
+    const balance = this.props.balance === 0 || this.props.balance? unloggedUtils.convertCurrencyTo(this.props.balance, currency) : 'unknown';
     return (
       <Menu style={{margin: '0.5rem'}}>
         <Menu.Menu position='right'>
