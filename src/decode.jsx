@@ -3,8 +3,6 @@ import { Table } from 'semantic-ui-react'
 
 const TransactionTable = ({tx}) => (
   <Table definition>
-  {console.log('1111111111111111111111111111111111111')}
-  {console.log(tx)}
     <Table.Body>
       {[...tx.getKeys()].map(
         key => (

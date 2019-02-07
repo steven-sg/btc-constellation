@@ -28,7 +28,7 @@ class BalanceSegment extends Component {
               <input className='prompt' style={{textAlign: 'right'}} type='text' placeholder='Balance' value={balance} disabled/>
             </div>
           {/* <Dropdown value={dropdownValue} direction='right' options={options} onChange={this.handleChange} item simple/> */}
-          <Dropdown item upward value={currency} options={options} onChange={this.handleChange}/>
+          <Dropdown item upward={this.props.upward} value={currency} options={options} onChange={this.handleChange}/>
         </Menu.Menu>
       </Menu>
     );

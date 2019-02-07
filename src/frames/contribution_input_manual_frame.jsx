@@ -20,7 +20,6 @@ class ContributionInputManualFrame extends Component {
     switch (name) {
       case 'Transaction Hash':
         // TODO find transcaction length and acceptable characters (hex?)
-        // TODO disallow duplicate transactions
         return new OperationResult(true);
       case 'Output Index':
         return new OperationResult(true);
@@ -124,13 +123,16 @@ class ContributionInputManualFrame extends Component {
     const outputIndexError = this.state['Output Index error'];
     const scriptPubKeyError = this.state['ScriptPubKey error'];
     const balanceError = this.state['balance error'];
-    const formError = !(!transactionError && !outputIndexError && !scriptPubKeyError && !balanceError) || (otherError && otherError.length > 0);
+    const formError = transactionError || outputIndexError || scriptPubKeyError || balanceError || (otherError && otherError.length > 0);
     return (
       <Form onSubmit={this.handleSubmit} error={formError} style={{margin: '0'}}>
           <Message
             error
             header='Invalid Input'
-            content={otherError || (this.state.errorList.length && this.state.errorList[0].message)}
+            content={
+              <p style={{overflowWrap: 'break-word'}}>
+                {otherError || (this.state.errorList.length && this.state.errorList[0].message)}
+              </p>}
           />
         <Form.Group>
           <Form.Input style={{marginBottom: '1rem'}}
@@ -167,7 +169,7 @@ class ContributionInputManualFrame extends Component {
                       error={balanceError}
                       step={this.balanceStepSize}/>
         </Form.Group>
-        <Form.Button content='Add Fund' disabled={formError}/>
+        <Form.Button content='Add Contribution' disabled={formError}/>
       </Form>
     );
   }

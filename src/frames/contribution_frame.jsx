@@ -6,7 +6,7 @@ import BalanceSegment from './balance_segment';
 class ContributionFrame extends Component {
   constructor(props) {
     super(props);
-    this.state = {txs: []}
+    this.state = {txs: []};
   }
 
   appendToTransaction = (tx) => {
@@ -24,7 +24,7 @@ class ContributionFrame extends Component {
   render() {
     const contributions = this.props.contributions;
     const balance = contributions.reduce((sum, a) => {
-      if (sum !== 0 || !sum || !a.output.balance) {
+      if (sum === null || a.output.balance === null) {
         return null;
       }
       return sum + Number(a.output.balance);
@@ -33,7 +33,7 @@ class ContributionFrame extends Component {
       <div style={{flexGrow: '1', display: 'flex', flexDirection:'column', overflow: 'auto'}}>
         <ContributionInputFrame callback={this.props.addTransaction} currency={this.props.currency}/>
         <ContributionList contributions={contributions} callback={this.props.removeTransaction} currency={this.props.currency}/>
-        <BalanceSegment balance={balance} currency={this.props.currency} callback={this.props.setCurrency}/>
+        <BalanceSegment balance={balance} currency={this.props.currency} callback={this.props.setCurrency} upward={true}/>
       </div>
     );
   }

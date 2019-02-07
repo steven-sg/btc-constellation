@@ -6,11 +6,9 @@ class ComplexSegmentGroup extends Component {
   state = {}
 
   createSegment = (item, index=0) => {
-    // console.log('segment', item);
     if (utils.isIterable(item)) {
       const firstItem = item[0];
       const tailItems = [...item].splice(1);
-
       const firstSegment = this.createSegment(firstItem);
       return [firstSegment].concat(this.createSubSegments(tailItems));
     }

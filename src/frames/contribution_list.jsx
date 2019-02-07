@@ -25,7 +25,7 @@ class ContributionList extends Component {
       const contributionId = `${contribution.txHash}:${contribution.output.outputIndex}`;
       return (
         <Segment key={contributionId} style={{display: 'flex', alignItems: 'center'}}>
-          <Button style={{boxShadow: 'noneƒ', marginRight: '1rem'}} basic size='small' icon='times' onClick={this.handleClick} txhash={contribution.output.txHash} outputindex={contribution.output.outputIndex}/>
+          <Button style={{boxShadow: 'noneƒ', marginRight: '1rem'}} basic size='small' icon='times' onClick={this.handleClick} txhash={contribution.txHash} outputindex={contribution.output.outputIndex}/>
           <p style={{display: 'inline', flexGrow: 1, marginBottom: '0', marginRight: '1rem', overflowX: 'auto'}}>{contributionId}</p>
           <p style={{display: 'inline', overflowX: 'auto'}}>{`${this.convertbalance(contribution.output.balance)} ${this.props.currency}`}</p>
         </Segment>
@@ -49,7 +49,7 @@ class ContributionList extends Component {
                   }
                   return (
                     <div style={{flexGrow: 1, flexShrink: 0, borderStyle:'dashed', borderRadius: '20px', borderWidth: '0.25rem', borderColor: 'white', color: 'white', textAlign: 'center', display:'flex', alignItems:'center', justifyContent:'center', marginTop: this.props.contributions.length? '0.5rem': 0}}>
-                      <div style={{color: 'white'}}>Add Transaction Inputs</div>
+                      <div style={{color: 'white'}}>Add Contributions</div>
                     </div>
                   );
                 }

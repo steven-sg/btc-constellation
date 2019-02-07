@@ -17,7 +17,7 @@ class FeeSegment extends Component {
 
   render() {
     return (
-      <Menu>
+      <Menu style={{margin: '0.5rem'}}>
         <Dropdown item simple text={this.feeOptions[0].text} direction='right' options={this.feeOptions} />
         <Menu.Menu position='right'>
             <div className='ui transparent icon input'>

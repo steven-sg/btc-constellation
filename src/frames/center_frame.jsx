@@ -65,10 +65,20 @@ class CenterFrame extends Component {
   }
 
   removeTransaction = (txHash, outputIndex) => {
+    // TODO change to use findIndex
     const txs = this.state.txs.filter((transaction)=>{
-      return transaction.txHash !== txHash && !transaction.outputs[outputIndex];
+      return transaction.txHash !== txHash && !transaction.outputs['outputIndex'];
     });
     this.setState({txs});
+  }
+
+  removePayment = (address, amount) => {
+    let payments = this.state.payments.slice(0);
+    const paymentIndex = payments.findIndex((element) => {
+      return element.to === address && element.amount === amount;
+    });
+    payments.splice(paymentIndex);
+    this.setState({payments});
   }
 
   appendToPayments = (payment) => {
@@ -83,9 +93,16 @@ class CenterFrame extends Component {
     this.setState({privKeys});
   }
 
+  removePrivateKey = (address) => {
+    let privKeys = this.state.privKeys;
+    delete privKeys[address];
+    this.setState({privKeys});
+  }
+
   setCurrency = (currency) => {
     this.setState({currency});
   }
+
   validate = () => {
     switch (this.state.frame.value) {
       case 'contribution':
@@ -151,11 +168,14 @@ class CenterFrame extends Component {
         return (<PaymentFrame callback={this.appendToPayments}
                               contributions={this.contributions}
                               payments={this.state.payments}
+                              removePayment={this.removePayment}
                               currency={this.state.currency}
                               setCurrency={this.setCurrency}/>);
       case 'signing':
         return <SigningFrame transactions={this.state.txs}
-                             callback={this.appendToPrivateKeys}/>;
+                             addPrivateKey={this.appendToPrivateKeys}
+                             removePrivateKey={this.removePrivateKey}
+                             privKeys={this.state.privKeys}/>;
       case 'transaction':
         return <TransactionFrame contributions={this.contributions}
                                  payments={this.state.payments}

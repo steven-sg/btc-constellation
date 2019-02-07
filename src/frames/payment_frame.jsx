@@ -1,28 +1,31 @@
 import React, { Component } from 'react';
 import BalanceSegment from './balance_segment';
-import FeeSegment from './fee_segment';
 import PaymentList from './payment_list';
 import PaymentInputFrame from './payment_input_frame';
 
-class ContributionFrame extends Component {
+class PaymentFrame extends Component {
   constructor(props) {
     super(props);
-    this.state = {}
+    this.state = {};
   }
 
   render() {
     const contributions = this.props.contributions;
-    const balance = contributions.reduce((sum, a) => sum + Number(a.output.balance), 0);
+    const balance = contributions.reduce((sum, a) => {
+      if (sum === null || a.output.balance === null) {
+        return null;
+      }
+      return sum + Number(a.output.balance);
+    }, 0);
 
     return (
       <div style={{width:'100%', flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
-        <BalanceSegment balance={balance} currency={this.props.currency} callback={this.props.setCurrency}/>
-        <PaymentInputFrame callback={this.props.callback}/>
-        <PaymentList payments={this.props.payments}/>
-        <FeeSegment />
+        <BalanceSegment balance={balance} currency={this.props.currency} callback={this.props.setCurrency} upward={false}/>
+        <PaymentInputFrame callback={this.props.callback} currency={this.props.currency}/>
+        <PaymentList payments={this.props.payments} currency={this.props.currency} callback={this.props.removePayment}/>
       </div>
     );
   }
 }
 
-export default ContributionFrame;
+export default PaymentFrame;
