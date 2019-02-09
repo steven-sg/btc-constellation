@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Message } from 'semantic-ui-react'
-import { transaction, unloggedUtils } from 'easy_btc';
+import { model, unloggedUtils } from 'easy_btc';
 import { OperationResult, ValidationError } from '../util';
 class ContributionInputManualFrame extends Component {
   state = {
@@ -96,8 +96,8 @@ class ContributionInputManualFrame extends Component {
     }
     const balance = this.state['Balance'] && this.state['Balance'].length ? unloggedUtils.convertCurrencyTo(this.state['Balance'], 'satoshi', this.props.currency)
                                                                           : null;
-    const transactionOutput = [new transaction.TransactionOutput(this.state['Output Index'], this.state['ScriptPubKey'], balance)];
-    const tx = new transaction.Transaction(this.state['Transaction Hash'], transactionOutput);
+    const transactionOutput = [new model.transaction.TransactionOutput(this.state['Output Index'], this.state['ScriptPubKey'], balance)];
+    const tx = new model.transaction.Transaction(this.state['Transaction Hash'], transactionOutput);
     const submissionResult = this.props.callback(tx);
     if (!submissionResult.success) {
       this.setState({otherError: submissionResult.error.message});
