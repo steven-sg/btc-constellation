@@ -1,29 +1,21 @@
 import React, { Component } from 'react'
 import { Header, Modal } from 'semantic-ui-react'
 
-class ModalModalExample extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { open: this.props.open || false };
-  }
-
-  open = () => this.setState({ open: true })
-  close = () => this.setState({ open: false })
-
-  render() {
-    return (
-      <Modal open={this.state.open} 
-             onOpen={this.open}
-             onClose={this.close}>
-        <Modal.Header>Transaction Success</Modal.Header>
-        <Modal.Content image>
-          <Modal.Description>
-            <Header>Default Profile Image</Header>
-            {this.props.message}
-          </Modal.Description>
-        </Modal.Content>
-      </Modal>);
-  }
+function TransactionModal ({open, handleOpen, handleClose, message, result}) {
+  console.log(`a${open} b${handleOpen} c${handleClose} d${message} e${result}`);
+  return (
+    <Modal open={open}
+          onOpen={handleOpen}
+          onClose={handleClose}>
+      <Modal.Header>Transaction Submitted</Modal.Header>
+      <Modal.Content>
+        <Modal.Description>
+          <Header>Submission {result}</Header>
+          <p style={{wordBreak: 'break-word'}}>{message}</p>
+        </Modal.Description>
+      </Modal.Content>
+    </Modal>
+  );
 }
 
-export default ModalModalExample;
+export default TransactionModal;

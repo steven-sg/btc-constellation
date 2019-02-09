@@ -5,7 +5,7 @@ import PaymentFrame from './payment_frame';
 import ErrorFrame from './error_frame';
 import TransactionFrame from './transaction_frame';
 import SigningFrame from './signing_frame';
-// import TransactionModel from './transaction_publish_model';
+import TransactionModal from './transaction_publish_model';
 import { transaction } from 'easy_btc';
 import { OperationResult } from '../util';
 
@@ -42,11 +42,16 @@ class CenterFrame extends Component {
       privKeys: {},
       modTx: null,
       published: false,
-      publishMessage: null,
+      publishMessage: '',
+      publishResult: '',
       loading: false,
       currency: 'Satoshi',
+      modalOpen: false,
     };
   }
+
+  handleOpenModal = () => this.setState({ modalOpen: true })
+  handleCloseModal = () => this.setState({ modalOpen: false })
 
   addTransaction = (tx) => {
     let duplicateTx = false;
@@ -228,22 +233,24 @@ class CenterFrame extends Component {
   }
 
   publish = () => {
-    this.setState({loading: true})
+    this.setState({loading: true});
     this.state.modTx.pushtx()
-      .catch((error) => {
-        return error;
-      }).then((response) => {
-        this.setState({loading: false, publish: true, publishMessage: response})
-      });
+    .then((response) => {
+      this.setState({loading: false, publish: true, publishMessage: response, modalOpen:true, publishResult:'Succeeded'});
+    }).catch((error) => {
+      console.log('center '+JSON.stringify(error));
+      this.setState({loading: false, publish: true, publishMessage: error.message, modalOpen:true, publishResult:'Failed'});
+    });
   }
 
   render() {
+    console.log(`state ${JSON.stringify(this.state)}`);
     return (
       <div style={{height: '100%', width:'100%', display: 'flex', flexDirection: 'column'}}>
         <Dimmer active={this.state.loading}>
           <Loader />
         </Dimmer>
-        {/* {this.state.published && <TransactionModel message={this.state.publishMessage} open/>} */}
+        <TransactionModal message={this.state.publishMessage} open={this.state.modalOpen} handleOpen={this.handleOpenModal} handleClose={this.handleCloseModal} result={this.state.publishResult}/>
         {this.frame}
         <div style={{margin: '0.5rem'}}>
           {this.navigationButtons}
