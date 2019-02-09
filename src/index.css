@@ -16,15 +16,18 @@ code {
     monospace;
 }
 
-div::-webkit-scrollbar-track {
+p::-webkit-scrollbar, div::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+
+p::-webkit-scrollbar-track, div::-webkit-scrollbar-track {
   background: #ffffff;
-  border-radius: 5px;
 }
 
 /* Handle */
-div::-webkit-scrollbar-thumb {
+p::-webkit-scrollbar-thumb, div::-webkit-scrollbar-thumb {
   background: #E0E1E2;
-  border-radius: 5px;
 }
 
 #root {

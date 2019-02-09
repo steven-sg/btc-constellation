@@ -18,11 +18,11 @@ class TxBreakdown extends Component {
     return (
       <div style={{width:'100%', flexGrow: '1', display: 'flex', flexDirection:'column'}}>
         {/* <TransactionTable tx={this.state.tx.transactionDict} /> */}
-        <Segment.Group>
+        <div style={{margin:'0.5rem'}}>
           <Segment style={{overflow: 'auto', fontSize: '2.5em', padding: '1.5rem'}}>
           { this.state.txhash }
           </Segment>
-        </Segment.Group>
+        </div>
         <ComplexSegmentGroup items={ this.state.logs }/>
       </div>
     )

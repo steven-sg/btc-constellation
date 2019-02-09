@@ -210,7 +210,7 @@ class CenterFrame extends Component {
         buttons.push(backNavButton);
         break;
       case 'transaction':
-        const publishButton = (<Button key={'publish'} style={{float: 'right'}} content='Publish Transaction' value='publish'
+        const publishButton = (<Button key={'publish'} style={{float: 'right', margin:0}} content='Publish Transaction' value='publish'
                                       icon='right arrow' labelPosition='right' onClick={this.publish}/>);
         buttons.push(publishButton);
         buttons.push(backNavButton);
