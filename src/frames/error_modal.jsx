@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { Header, Modal } from 'semantic-ui-react'
 
 function TransactionModal ({open, handleOpen, handleClose, message, result}) {
-  console.log(`a${open} b${handleOpen} c${handleClose} d${message} e${result}`);
   return (
     <Modal open={open}
           onOpen={handleOpen}

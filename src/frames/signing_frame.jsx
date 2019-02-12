@@ -10,6 +10,7 @@ class SigningForm extends Component {
     this.state = {
       hover: false,
       backgroundColor: lighterPurple,
+      formValue: '',
     };
   }
 
@@ -25,21 +26,24 @@ class SigningForm extends Component {
     }
   }
 
+  handleChange = (e, { value }) => {
+    this.setState({ formValue: value });
+  }
+
   handleClick = () => {
     //TODO the handlers should probable be detached rather than this if statement
     this.props.removeKey(this.props.address);
   }
 
   handleSubmit = () => {
-    //TODO does this need a return?
-    return this.props.callback(this.props.address);
+    return this.props.callback(this.props.address, this.state.formValue);
   }
 
   // TODO add bottom border radius to locked frame
   renderForm = () => {
     return (
       <Form style={{margin: '1rem', marginTop: '2.5rem'}} onSubmit={this.handleSubmit}>
-        <Form.Input name={this.props.address} value={this.props.value || ''} onChange={this.props.onChange} type='password' placeholder={'Insert private key'}/>
+        <Form.Input name={this.props.address} value={this.state.formValue || ''} onChange={this.handleChange} type='password' placeholder={'Insert private key'}/>
         <Form.Button content={'Unlock'} style={{float:'right', margin:0}}/>
       </Form>);
   }
@@ -70,27 +74,22 @@ class SigningFrame extends Component {
     this.state = {};
   }
 
-  //TODO migrate onchange to child
-  handleChange = (e, { name, value }) => {
-    this.setState({ [name]: value });
+  handleSubmit = (txHash, priv) => {
+    this.props.addPrivateKey(txHash, priv);
   }
 
-  handleSubmit = (address) => {
-    this.props.addPrivateKey(address, this.state[address]);
-  }
-
-  removePrivateKey = (address) => {
-    this.props.removePrivateKey(address);
+  removePrivateKey = (txHash) => {
+    this.props.removePrivateKey(txHash);
   }
 
   render() {
     return (
       <div style={{flexGrow: '1', display: 'flex', flexDirection:'column', overflowY:'auto', marginTop: '0.5rem'}}>
         {this.props.transactions.map((tx) => {
+          const address = `${tx.txHash}:${Object.keys(tx.outputs)[0]}`;
           return (
-            <SigningForm address={tx.txHash} value={this.state[tx.txHash]}
-                         onChange={this.handleChange} callback={this.handleSubmit} removeKey={this.removePrivateKey}
-                         key={tx.txHash} unlocked={this.props.privKeys[tx.txHash] && this.props.privKeys[tx.txHash].length > 0}/>)
+            <SigningForm address={address} callback={this.handleSubmit} removeKey={this.removePrivateKey}
+                         key={address} unlocked={this.props.privKeys[address] && this.props.privKeys[address].length > 0}/>)
         })}
       </div>
     );

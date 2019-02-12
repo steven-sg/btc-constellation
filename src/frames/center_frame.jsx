@@ -6,12 +6,11 @@ import PaymentFrame from './payment_frame';
 import ErrorFrame from './error_frame';
 import TransactionFrame from './transaction_frame';
 import SigningFrame from './signing_frame';
-import { transaction, dataStructures } from 'easy_btc';
+import { transaction } from 'easy_btc';
 import { OperationResult } from '../util';
 import errorIcon from '../icons/x-circle.svg';
 import ErrorModal from './error_modal';
 
-const OrderedDict = dataStructures.OrderedDict;
 const startingFrameMeta = {
   value: 'starting',
   order: 0,
@@ -56,7 +55,6 @@ class CenterFrame extends Component {
       currency: 'Satoshi',
       modalOpen: false,
       network: null,
-      transactionAddressMap: {},
     };
   }
 
@@ -86,6 +84,7 @@ class CenterFrame extends Component {
     });
     txs.splice(txIndex, 1);
     this.setState({txs});
+    this.removePrivateKey(`${txHash}:${outputIndex}`);
   }
 
   removePayment = (address, amount) => {
@@ -103,9 +102,9 @@ class CenterFrame extends Component {
     this.setState({payments});
   }
 
-  appendToPrivateKeys = (address, priv) => {
+  appendToPrivateKeys = (transaction, priv) => {
     let privKeys = this.state.privKeys;
-    privKeys[address] = priv;
+    privKeys[transaction] = priv;
     this.setState({privKeys});
     return true; //TODO does this.setState return a truthly value?
   }
@@ -194,6 +193,7 @@ class CenterFrame extends Component {
                               setCurrency={this.setCurrency}
                               network={this.state.network}/>);
       case 'signing':
+      // TODO this should probably be passing around contributions, not transactions
         return <SigningFrame transactions={this.state.txs}
                              addPrivateKey={this.appendToPrivateKeys}
                              removePrivateKey={this.removePrivateKey}
@@ -277,13 +277,11 @@ class CenterFrame extends Component {
     .then((response) => {
       this.setState({loading: false, publish: true, publishMessage: response, modalOpen:true, publishResult:'Succeeded'});
     }).catch((error) => {
-      console.log('center '+JSON.stringify(error));
       this.setState({loading: false, publish: true, publishMessage: error.message, modalOpen:true, publishResult:'Failed'});
     });
   }
 
   render() {
-    console.log(`state ${JSON.stringify(this.state)}`);
     return (
       <div style={{height: '100%', width:'100%', display: 'flex', flexDirection: 'column'}}>
         <Dimmer active={this.state.loading}>
