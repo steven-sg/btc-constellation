@@ -1,31 +1,38 @@
 import React, { Component } from 'react';
 import { Button, Dimmer, Loader } from 'semantic-ui-react'
+import StartingFrame from './starting_frame';
 import ContributionFrame from './contribution_frame';
 import PaymentFrame from './payment_frame';
 import ErrorFrame from './error_frame';
 import TransactionFrame from './transaction_frame';
 import SigningFrame from './signing_frame';
-import TransactionModal from './transaction_publish_model';
 import { transaction } from 'easy_btc';
 import { OperationResult } from '../util';
+import errorIcon from '../icons/x-circle.svg';
+import ErrorModal from './error_modal';
 
+const startingFrameMeta = {
+  value: 'starting',
+  order: 0,
+};
 const contributionFrameMeta = {
   value: 'contribution',
-  order: 0,
+  order: 1,
 };
 const paymentFrameMeta = {
   value: 'payment',
-  order: 1,
+  order: 2,
 };
 const signingFrameMeta = {
   value: 'signing',
-  order: 2,
+  order: 3,
 };
 const transactionFrameMeta = {
   value: 'transaction',
-  order: 3,
+  order: 4,
 };
 const navLookup = [
+  startingFrameMeta,
   contributionFrameMeta,
   paymentFrameMeta,
   signingFrameMeta,
@@ -36,7 +43,7 @@ class CenterFrame extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      frame: contributionFrameMeta,
+      frame: startingFrameMeta,
       txs: [],
       payments: [],
       privKeys: {},
@@ -47,6 +54,7 @@ class CenterFrame extends Component {
       loading: false,
       currency: 'Satoshi',
       modalOpen: false,
+      network: null,
     };
   }
 
@@ -110,6 +118,8 @@ class CenterFrame extends Component {
 
   validate = () => {
     switch (this.state.frame.value) {
+      case 'starting':
+        return true;
       case 'contribution':
         if(this.state.txs.length) {
           return true;
@@ -163,6 +173,8 @@ class CenterFrame extends Component {
 
   get frame () {
     switch (this.state.frame.value) {
+      case 'starting':
+        return (<StartingFrame callback={this.setTransactionMode}/>);
       case 'contribution':
         return (<ContributionFrame addTransaction={this.addTransaction}
                                    removeTransaction={this.removeTransaction}
@@ -198,8 +210,11 @@ class CenterFrame extends Component {
                                    icon='left arrow' labelPosition='left' onClick={this.handleClick}/>);
     const buttons = [];
     switch (this.state.frame.value) {
+      case 'starting':
+        break;
       case 'contribution':
         buttons.push(nextNavButton);
+        buttons.push(backNavButton);
         break;
       case 'payment':
         buttons.push(nextNavButton);
@@ -221,15 +236,35 @@ class CenterFrame extends Component {
     return buttons;
   }
 
-  handleClick = (e, { value }) => {
-    if(value === 'next' && !this.validate()) {
+  handleNavigation = (direction) => {
+    if(direction === 'next' && !this.validate()) {
       alert('validation failed');
       return;
     }
 
-    const direction = value === 'next' ? 1: -1;
-    const frame = navLookup[this.state.frame.order + direction];
+    const directionValue = direction === 'next' ? 1: -1;
+    const frame = navLookup[this.state.frame.order + directionValue];
     this.setState({frame});
+  }
+
+  handleClick = (e, { value }) => {
+    this.handleNavigation(value);
+  }
+
+  setTransactionMode = (mode) => {
+    switch (mode) {
+      case 'mainnet':
+        this.setState({network: mode});
+        break;
+      case 'testnet':
+        this.setState({network: mode});
+        break;
+      default:
+        alert('error');
+        return false;
+    }
+    // TODO make sure that every return is bool
+    return this.handleNavigation('next');
   }
 
   publish = () => {
@@ -250,7 +285,7 @@ class CenterFrame extends Component {
         <Dimmer active={this.state.loading}>
           <Loader />
         </Dimmer>
-        <TransactionModal message={this.state.publishMessage} open={this.state.modalOpen} handleOpen={this.handleOpenModal} handleClose={this.handleCloseModal} result={this.state.publishResult}/>
+        <ErrorModal message={this.state.publishMessage} open={this.state.modalOpen} handleOpen={this.handleOpenModal} handleClose={this.handleCloseModal} result={this.state.publishResult}/>
         {this.frame}
         <div style={{margin: '0.5rem'}}>
           {this.navigationButtons}
