@@ -28,6 +28,7 @@ class ContributionInputManualFrame extends Component {
           value.length && unloggedUtils.getScriptFormat(value);
           return new OperationResult(true);
         } catch (error) {
+          // TODO add generic error
           return new OperationResult(false, error);
         }
       case 'Balance':
@@ -51,6 +52,7 @@ class ContributionInputManualFrame extends Component {
   }
 
   appendError = (errorList, name, error) => {
+    // TODO Modularize this in an util
     let errorListCopy = errorList.slice(0);
     let found = false;
     errorListCopy.forEach((element, index) => {
@@ -69,6 +71,7 @@ class ContributionInputManualFrame extends Component {
   };
 
   removeError = (errorList, name) => {
+    // TODO Modularize this in an util
     return errorList.filter((element) => {
       return element.field !== name;
     });

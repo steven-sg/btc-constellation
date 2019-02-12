@@ -35,7 +35,7 @@ class SigningForm extends Component {
     return this.props.callback(this.props.address);
   }
 
-  // TODO add bottom border radius to unlocked frame
+  // TODO add bottom border radius to locked frame
   renderForm = () => {
     return (
       <Form style={{margin: '1rem', marginTop: '2.5rem'}} onSubmit={this.handleSubmit}>

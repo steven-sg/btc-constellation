@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Card, Form, Message } from 'semantic-ui-react'
-import { model, unloggedUtils } from 'easy_btc';
+import { model, unloggedUtils, utils } from 'easy_btc';
 import { OperationResult, ValidationError } from '../util';
 
 class paymentInputFrame extends Component {
@@ -19,6 +19,48 @@ class paymentInputFrame extends Component {
   validate = (name, value) => {
     switch (name) {
       case 'Bitcoin Address':
+        if (!value.length) {
+          return new OperationResult(true);
+        }
+
+        try {
+          const addressType = utils.getAddressFormat(value).toUpperCase();
+          if (addressType !== 'P2PKH') {
+            return new OperationResult(false, new Error(
+              `Address type ${addressType} is not supported. Please supply a P2PKH address.`
+            ));
+          }
+        } catch (error) {
+          if (error instanceof utils.InvalidInputFormat) {
+            return new OperationResult(false, new Error(
+              `Unrecognised address format. Please supply a P2PKH address.`
+            ));
+          }
+          return new OperationResult(false, new Error(
+            `An unexpected error has occurred.`
+          ));
+        }
+
+        try {
+          const network = utils.getAddressNetwork(value).toUpperCase();
+          const expectedNetwork = this.props.network.toUpperCase();
+          if (network !== expectedNetwork) {
+            return new OperationResult(false, new Error(
+              `This address belongs to an compatible network: ${network}.
+              Please use an address from the ${expectedNetwork} or create a new ${network} transaction.`
+            ));
+          }
+        } catch (error) {
+          if (error instanceof utils.InvalidInputFormat) {
+            return new OperationResult(false, new Error(
+              `Unrecognised address network. Please supply a P2PKH address.`
+            ));
+          }
+          return new OperationResult(false, new Error(
+            `An unexpected error has occurred.`
+          ));
+        }
+
         return new OperationResult(true);
       case 'Amount':
         return new OperationResult(true);
@@ -79,6 +121,32 @@ class paymentInputFrame extends Component {
     const amount = unloggedUtils.convertCurrencyTo(this.state['Amount'], 'satoshi', this.props.currency);
     const payment = new model.transaction.Payment(this.state['Bitcoin Address'], amount);
     this.props.callback(payment);
+  }
+
+  appendError = (errorList, name, error) => {
+    // TODO Modularize this in an util
+    let errorListCopy = errorList.slice(0);
+    let found = false;
+    errorListCopy.forEach((element, index) => {
+      if (!found && element.field === name) {
+        errorListCopy[index].message = error.message;
+        found = true;
+      }
+    });
+    if (!found) {
+      errorListCopy.push({
+        field: name,
+        message: error.message,
+      });
+    }
+    return errorListCopy;
+  };
+
+  removeError = (errorList, name) => {
+    // TODO Modularize this in an util
+    return errorList.filter((element) => {
+      return element.field !== name;
+    });
   }
 
   render() {

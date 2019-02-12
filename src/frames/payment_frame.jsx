@@ -21,7 +21,7 @@ class PaymentFrame extends Component {
     return (
       <div style={{width:'100%', flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
         <BalanceSegment balance={balance} currency={this.props.currency} callback={this.props.setCurrency} upward={false}/>
-        <PaymentInputFrame callback={this.props.callback} currency={this.props.currency}/>
+        <PaymentInputFrame callback={this.props.callback} currency={this.props.currency} network={this.props.network}/>
         <PaymentList payments={this.props.payments} currency={this.props.currency} callback={this.props.removePayment}/>
       </div>
     );

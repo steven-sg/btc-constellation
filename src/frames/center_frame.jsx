@@ -187,7 +187,8 @@ class CenterFrame extends Component {
                               payments={this.state.payments}
                               removePayment={this.removePayment}
                               currency={this.state.currency}
-                              setCurrency={this.setCurrency}/>);
+                              setCurrency={this.setCurrency}
+                              network={this.state.network}/>);
       case 'signing':
         return <SigningFrame transactions={this.state.txs}
                              addPrivateKey={this.appendToPrivateKeys}
