@@ -6,11 +6,12 @@ import PaymentFrame from './payment_frame';
 import ErrorFrame from './error_frame';
 import TransactionFrame from './transaction_frame';
 import SigningFrame from './signing_frame';
-import { transaction } from 'easy_btc';
+import { transaction, dataStructures } from 'easy_btc';
 import { OperationResult } from '../util';
 import errorIcon from '../icons/x-circle.svg';
 import ErrorModal from './error_modal';
 
+const OrderedDict = dataStructures.OrderedDict;
 const startingFrameMeta = {
   value: 'starting',
   order: 0,
@@ -55,6 +56,7 @@ class CenterFrame extends Component {
       currency: 'Satoshi',
       modalOpen: false,
       network: null,
+      transactionAddressMap: {},
     };
   }
 
@@ -64,7 +66,7 @@ class CenterFrame extends Component {
   addTransaction = (tx) => {
     let duplicateTx = false;
     this.state.txs.forEach((transaction) => {
-      if (!duplicateTx && transaction.txHash === tx.txHash && transaction.outputIndex === tx.outputIndex) {
+      if (!duplicateTx && transaction.txHash === tx.txHash && Object.keys(transaction.outputs)[0] === Object.keys(tx.outputs)[0]) {
         duplicateTx = true;
       }
     });
@@ -78,10 +80,11 @@ class CenterFrame extends Component {
   }
 
   removeTransaction = (txHash, outputIndex) => {
-    // TODO change to use findIndex
-    const txs = this.state.txs.filter((transaction)=>{
-      return transaction.txHash !== txHash && !transaction.outputs['outputIndex'];
+    let txs = this.state.txs.slice(0);
+    const txIndex = txs.findIndex((tx) => {
+      return tx.txHash === txHash && Object.keys(tx.outputs)[0] === outputIndex;
     });
+    txs.splice(txIndex, 1);
     this.setState({txs});
   }
 
@@ -90,7 +93,7 @@ class CenterFrame extends Component {
     const paymentIndex = payments.findIndex((element) => {
       return element.to === address && element.amount === amount;
     });
-    payments.splice(paymentIndex);
+    payments.splice(paymentIndex, 1);
     this.setState({payments});
   }
 
@@ -104,6 +107,7 @@ class CenterFrame extends Component {
     let privKeys = this.state.privKeys;
     privKeys[address] = priv;
     this.setState({privKeys});
+    return true; //TODO does this.setState return a truthly value?
   }
 
   removePrivateKey = (address) => {
@@ -160,7 +164,7 @@ class CenterFrame extends Component {
       const modTx = new transaction.ModularTransaction(this.contributions, this.state.payments);
       modTx.createRawTransaction();
       modTx.signTransaction(privKeysArg);
-      this.setState({privKeysArg, modTx});
+      this.setState({modTx});
     }
     return isValid;
   }
@@ -197,7 +201,6 @@ class CenterFrame extends Component {
       case 'transaction':
         return <TransactionFrame contributions={this.contributions}
                                  payments={this.state.payments}
-                                 privKeys={this.state.privKeysArg}
                                  transaction={this.state.modTx}/>;
       default:
         return <ErrorFrame />;

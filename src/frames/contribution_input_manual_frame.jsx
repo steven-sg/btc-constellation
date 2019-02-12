@@ -99,7 +99,7 @@ class ContributionInputManualFrame extends Component {
     }
     const balance = this.state['Balance'] && this.state['Balance'].length ? unloggedUtils.convertCurrencyTo(this.state['Balance'], 'satoshi', this.props.currency)
                                                                           : null;
-    const transactionOutput = [new model.transaction.TransactionOutput(this.state['Output Index'], this.state['ScriptPubKey'], balance)];
+    const transactionOutput = [new model.transaction.TransactionOutput(Number(this.state['Output Index']).toString(), this.state['ScriptPubKey'], balance)];
     const tx = new model.transaction.Transaction(this.state['Transaction Hash'], transactionOutput);
     const submissionResult = this.props.callback(tx);
     if (!submissionResult.success) {

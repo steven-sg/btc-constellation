@@ -9,8 +9,8 @@ class PaymentList extends Component {
     this.state = {};
   }
 
-  handleClick = (e, {txhash, outputindex}) => {
-    this.props.callback(txhash, outputindex);
+  handleClick = (e, {address, amount}) => {
+    this.props.callback(address, amount);
   }
 
   convertAmount = (amount) => {
