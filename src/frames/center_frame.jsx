@@ -8,8 +8,8 @@ import TransactionFrame from './transaction_frame';
 import SigningFrame from './signing_frame';
 import { transaction } from 'easy_btc';
 import { OperationResult } from '../util';
-import errorIcon from '../icons/x-circle.svg';
 import ErrorModal from './error_modal';
+import SubmissionModal from './submission_modal';
 
 const startingFrameMeta = {
   value: 'starting',
@@ -55,11 +55,20 @@ class CenterFrame extends Component {
       currency: 'Satoshi',
       modalOpen: false,
       network: null,
+      error: false,
+      errorMessage: '',
     };
   }
 
-  handleOpenModal = () => this.setState({ modalOpen: true })
-  handleCloseModal = () => this.setState({ modalOpen: false })
+  handleOpenModal = () => {
+    this.setState({ modalOpen: true });
+  }
+  handleCloseModal = () => {
+    this.setState({
+      modalOpen: false,
+      error: false,
+    });
+  }
 
   addTransaction = (tx) => {
     let duplicateTx = false;
@@ -122,36 +131,36 @@ class CenterFrame extends Component {
   validate = () => {
     switch (this.state.frame.value) {
       case 'starting':
-        return true;
+        return new OperationResult(true);
       case 'contribution':
         if(this.state.txs.length) {
-          return true;
+          return new OperationResult(true);
         }
-        break;
+        return new OperationResult(false, new Error('Please add at least one contribution to continue.'));
       case 'payment':
         if(this.state.payments.length) {
-          return true;
+          return new OperationResult(true);
         }
-        break;
+        return new OperationResult(false, new Error('Please add at least one payment to continue.'));
       case 'signing':
         if(this.validatePrivKeys()) {
-          return true;
+          return new OperationResult(true);
         }
-        break;
+        return new OperationResult(false, new Error('Please ensure that you have unlocked each of the transactions.'));
       case 'transaction':
-        break;
+        return new OperationResult(false);
       default:
-        break;
+        return new OperationResult(false);
     }
-    return false;
   }
 
   validatePrivKeys = () => {
+    console.debug(JSON.stringify(this.state));
     const privKeysArg = [];
     let isValid = true;
 
     this.contributions.forEach(contribution => {
-      const priv = this.state.privKeys[contribution.txHash];
+      const priv = this.state.privKeys[`${contribution.txHash}:${contribution.output.outputIndex}`];
       if(priv) {
         privKeysArg.push(priv);
         return;
@@ -241,9 +250,16 @@ class CenterFrame extends Component {
   }
 
   handleNavigation = (direction) => {
-    if(direction === 'next' && !this.validate()) {
-      alert('validation failed');
-      return;
+    if(direction === 'next') {
+      const validationResult = this.validate();
+      if (!validationResult.success) {
+        this.setState({
+          error: true,
+          errorMessage: validationResult.error.message,
+          modalOpen: true,
+        });
+        return;
+      }
     }
 
     const directionValue = direction === 'next' ? 1: -1;
@@ -287,7 +303,9 @@ class CenterFrame extends Component {
         <Dimmer active={this.state.loading}>
           <Loader />
         </Dimmer>
-        <ErrorModal message={this.state.publishMessage} open={this.state.modalOpen} handleOpen={this.handleOpenModal} handleClose={this.handleCloseModal} result={this.state.publishResult}/>
+        { this.state.error ?
+          <ErrorModal message={this.state.errorMessage} open={this.state.modalOpen} handleOpen={this.handleOpenModal} handleClose={this.handleCloseModal}/>
+          : <SubmissionModal message={this.state.publishMessage} open={this.state.modalOpen} handleOpen={this.handleOpenModal} handleClose={this.handleCloseModal} result={this.state.publishResult}/> }
         {this.frame}
         <div style={{margin: '0.5rem'}}>
           {this.navigationButtons}
