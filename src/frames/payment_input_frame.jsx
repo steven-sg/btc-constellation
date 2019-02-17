@@ -6,13 +6,26 @@ import { OperationResult, ValidationError } from '../util';
 class paymentInputFrame extends Component {
   constructor(props) {
     super(props);
-    this.state = {
+    const state = {
       errorList: [],
-      'Bitcoin Address error': false,
       'Amount error': false,
+      'Bitcoin Address error': false,
+      otherError: false,
+    };
+    const formValues = this.getInitialFormValues(this.props.tutorial);
+    this.state = {...state, ...formValues}
+  }
+
+  getInitialFormValues = (prefill) => {
+    if (prefill) {
+      return {
+        'Bitcoin Address': 'mjUDEsMXuYFZSrERVZjzHpznNJFzNUBoop',
+        'Amount': '10000000',
+      };
+    }
+    return {
       'Bitcoin Address': '',
       'Amount': '',
-      otherError: false,
     };
   }
 

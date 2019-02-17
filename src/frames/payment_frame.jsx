@@ -11,6 +11,7 @@ class PaymentFrame extends Component {
 
   render() {
     const contributions = this.props.contributions;
+    // TODO theres 3 versions of this functino
     const balance = contributions.reduce((sum, a) => {
       if (sum === null || a.output.balance === null) {
         return null;
@@ -21,7 +22,7 @@ class PaymentFrame extends Component {
     return (
       <div style={{width:'100%', flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
         <BalanceSegment balance={balance} currency={this.props.currency} callback={this.props.setCurrency} upward={false}/>
-        <PaymentInputFrame callback={this.props.callback} currency={this.props.currency} network={this.props.network}/>
+        <PaymentInputFrame callback={this.props.callback} currency={this.props.currency} network={this.props.network} tutorial={this.props.tutorial}/>
         <PaymentList payments={this.props.payments} currency={this.props.currency} callback={this.props.removePayment}/>
       </div>
     );

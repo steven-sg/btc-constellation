@@ -8,11 +8,14 @@ class ContributionInputFrame extends Component {
     return (
       <div style={{margin: '0.5rem'}}>
         <Tab menu={{ pointing: true, attached: true}}
-            panes={[{ menuItem: 'Automatic', render: () => <Tab.Pane> Under Development </Tab.Pane> },
-                    { menuItem: 'Manual', render: () => (
+             defaultActiveIndex={this.props.tutorial ? 1 : 0}
+             panes={[{ menuItem: 'Automatic', render: () => <Tab.Pane> Under Development </Tab.Pane> },
+                     { menuItem: 'Manual', render: () => (
                       <Tab.Pane>
                         <ContributionInputManualFrame callback={this.props.callback}
-                                                      currency={this.props.currency}/>
+                                                      currency={this.props.currency}
+                                                      contributions={this.props.contributions}
+                                                      tutorial={this.props.tutorial}/>
                       </Tab.Pane>)}]}/>
       </div>
     );

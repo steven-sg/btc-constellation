@@ -3,17 +3,42 @@ import { Form, Message } from 'semantic-ui-react'
 import { model, unloggedUtils } from 'easy_btc';
 import { OperationResult, ValidationError } from '../util';
 class ContributionInputManualFrame extends Component {
-  state = {
-    errorList: [],
-    'Transaction Hash error': false,
-    'Output Index error': false,
-    'ScriptPubKey error': false,
-    'balance error': false,
-    'Transaction Hash': '',
-    'Output Index': '',
-    'ScriptPubKey': '',
-    'Balance': '',
-    otherError: false,
+  constructor (props) {
+    super(props);
+    const state = {
+      errorList: [],
+      'Transaction Hash error': false,
+      'Output Index error': false,
+      'ScriptPubKey error': false,
+      'balance error': false,
+      otherError: false,
+    };
+    const formValues = this.getInitialFormValues(this.props.tutorial);
+    this.state = {...state, ...formValues} 
+  }
+
+  componentDidUpdate(prevProps) {
+    // If a contribution has been removed from the list
+    if (prevProps.contributions.length !== this.props.contributions.length) {
+      this.setState({otherError: false});
+    }
+  }
+
+  getInitialFormValues = (prefill) => {
+    if (prefill) {
+      return {
+        'Transaction Hash': '68e7da9216d4e113df7918383258f7cec0a5cf661f469f68966aadf6a12358d3',
+        'Output Index': '0',
+        'ScriptPubKey': '76a914328dbf4cbeacc2898f096ffce5f9dcd27b53e5cc88ac',
+        'Balance': '20000000',
+      };
+    }
+    return {
+      'Transaction Hash': '',
+      'Output Index': '',
+      'ScriptPubKey': '',
+      'Balance': '',
+    }
   }
 
   validate = (name, value) => {

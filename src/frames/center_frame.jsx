@@ -4,9 +4,10 @@ import StartingFrame from './starting_frame';
 import ContributionFrame from './contribution_frame';
 import PaymentFrame from './payment_frame';
 import ErrorFrame from './error_frame';
+import FeesFrame from './fees_frame';
 import TransactionFrame from './transaction_frame';
 import SigningFrame from './signing_frame';
-import { transaction } from 'easy_btc';
+import { transaction, utils } from 'easy_btc';
 import { OperationResult } from '../util';
 import ErrorModal from './error_modal';
 import SubmissionModal from './submission_modal';
@@ -27,15 +28,20 @@ const signingFrameMeta = {
   value: 'signing',
   order: 3,
 };
+const feesFrameMeta = {
+  value: 'fees',
+  order: 4,
+};
 const transactionFrameMeta = {
   value: 'transaction',
-  order: 4,
+  order: 5,
 };
 const navLookup = [
   startingFrameMeta,
   contributionFrameMeta,
   paymentFrameMeta,
   signingFrameMeta,
+  feesFrameMeta,
   transactionFrameMeta,
 ];
 
@@ -57,12 +63,15 @@ class CenterFrame extends Component {
       network: null,
       error: false,
       errorMessage: '',
+      changePayment: '',
+      tutorial: false,
     };
   }
 
   handleOpenModal = () => {
     this.setState({ modalOpen: true });
   }
+
   handleCloseModal = () => {
     this.setState({
       modalOpen: false,
@@ -111,9 +120,9 @@ class CenterFrame extends Component {
     this.setState({payments});
   }
 
-  appendToPrivateKeys = (transaction, priv) => {
+  appendToPrivateKeys = (address, priv) => {
     let privKeys = this.state.privKeys;
-    privKeys[transaction] = priv;
+    privKeys[address] = priv;
     this.setState({privKeys});
     return true; //TODO does this.setState return a truthly value?
   }
@@ -124,8 +133,39 @@ class CenterFrame extends Component {
     this.setState({privKeys});
   }
 
+  getAddressesFromPrivs = (addresses) => {
+    const addressesCopy = addresses ? addresses.slice(0) : [];
+    Object.keys(this.state.privKeys).forEach((key) => {
+      const priv = this.state.privKeys[key];
+      const address = utils.privToAddress(priv, this.state.network);
+      if (!addressesCopy.includes(address)) {
+        addressesCopy.push(address);
+      }
+    });
+    return addressesCopy;
+  }
+
+  getAddressesFromPayments = (addresses) => {
+    const addressesCopy = addresses ? addresses.slice(0) : [];
+    this.state.payments.forEach((payment) => {
+      if (!addressesCopy.includes(payment.to)) {
+        addressesCopy.push(payment.to);
+      }
+    })
+    return addressesCopy;
+  }
+
+  getAllAddresses = () => {
+    const addresses = this.getAddressesFromPrivs();
+    return this.getAddressesFromPayments(addresses);
+  }
+
   setCurrency = (currency) => {
     this.setState({currency});
+  }
+
+  setChangePayment = (changePayment) => {
+    this.setState({changePayment});
   }
 
   validate = () => {
@@ -147,6 +187,8 @@ class CenterFrame extends Component {
           return new OperationResult(true);
         }
         return new OperationResult(false, new Error('Please ensure that you have unlocked each of the transactions.'));
+      case 'fees':
+        return new OperationResult(true);
       case 'transaction':
         return new OperationResult(false);
       default:
@@ -154,12 +196,28 @@ class CenterFrame extends Component {
     }
   }
 
-  validatePrivKeys = () => {
-    console.debug(JSON.stringify(this.state));
+  calculateBalance = () => {
+    const totalContributionValue = this.contributions.reduce((sum, a) => {
+      if (sum === null || a.output.balance === null) {
+        return null;
+      }
+      return sum + Number(a.output.balance);
+    }, 0);
+  
+    if (totalContributionValue === null) {
+      return null;
+    }
+
+    const totalPaymentValue = this.state.payments.reduce((sum, payment) => {
+      return sum + Number(payment.amount);
+    }, 0);
+  
+    return totalContributionValue - totalPaymentValue;
+  }
+  getPrivKeyArgs = () => {
     const privKeysArg = [];
     let isValid = true;
-
-    this.contributions.forEach(contribution => {
+    this.contributions.forEach((contribution) => {
       const priv = this.state.privKeys[`${contribution.txHash}:${contribution.output.outputIndex}`];
       if(priv) {
         privKeysArg.push(priv);
@@ -167,14 +225,25 @@ class CenterFrame extends Component {
       }
       isValid = false;
     });
-
+    console.log('contributions ' + JSON.stringify(this.contributions));
+    console.log('privKeyArgs ' + privKeysArg);
+    console.log('isValid ' + isValid);
     if (isValid) {
-      const modTx = new transaction.ModularTransaction(this.contributions, this.state.payments);
-      modTx.createRawTransaction();
-      modTx.signTransaction(privKeysArg);
-      this.setState({modTx});
+      return privKeysArg;
     }
+    //todo this is really bad
     return isValid;
+  }
+
+  validatePrivKeys = () => {
+    const privKeysArg = this.getPrivKeyArgs()
+
+    if (privKeysArg) {
+      const modTx = transaction.createSignedTransaction(this.contributions, this.state.payments, privKeysArg);
+      this.setState({modTx});
+      return true;
+    }
+    return false;
   }
 
   get contributions () {
@@ -192,7 +261,8 @@ class CenterFrame extends Component {
                                    removeTransaction={this.removeTransaction}
                                    contributions={this.contributions} 
                                    currency={this.state.currency}
-                                   setCurrency={this.setCurrency}/>);
+                                   setCurrency={this.setCurrency}
+                                   tutorial={this.state.tutorial}/>);
       case 'payment':
         return (<PaymentFrame callback={this.appendToPayments}
                               contributions={this.contributions}
@@ -200,13 +270,22 @@ class CenterFrame extends Component {
                               removePayment={this.removePayment}
                               currency={this.state.currency}
                               setCurrency={this.setCurrency}
-                              network={this.state.network}/>);
+                              network={this.state.network}
+                              tutorial={this.state.tutorial}/>);
       case 'signing':
       // TODO this should probably be passing around contributions, not transactions
         return <SigningFrame transactions={this.state.txs}
                              addPrivateKey={this.appendToPrivateKeys}
                              removePrivateKey={this.removePrivateKey}
-                             privKeys={this.state.privKeys}/>;
+                             privKeys={this.state.privKeys}
+                             tutorial={this.state.tutorial}/>;
+      case 'fees':
+        return (<FeesFrame callback={this.changePayment}
+                           addresses={this.getAllAddresses()}
+                           contributions={this.contributions}
+                           payments={this.state.payments}
+                           privKeysArg={this.getPrivKeyArgs()}
+                           balance={this.calculateBalance()}/>);
       case 'transaction':
         return <TransactionFrame contributions={this.contributions}
                                  payments={this.state.payments}
@@ -234,6 +313,10 @@ class CenterFrame extends Component {
         buttons.push(backNavButton);
         break;
       case 'signing':
+        buttons.push(nextNavButton);
+        buttons.push(backNavButton);
+        break;
+      case 'fees':
         buttons.push(nextNavButton);
         buttons.push(backNavButton);
         break;
@@ -278,6 +361,12 @@ class CenterFrame extends Component {
         break;
       case 'testnet':
         this.setState({network: mode});
+        break;
+      case 'tutorial':
+        this.setState({
+          network: 'testnet',
+          tutorial: true,
+        });
         break;
       default:
         alert('error');
