@@ -3,15 +3,22 @@ import { Dropdown, Message, Transition } from 'semantic-ui-react'
 import { utils } from 'easy_btc';
 import { OperationResult } from '../util';
 
-class DropdownExampleSearchQuery extends Component {
+class AddressDropdown extends Component {
   constructor (props) {
     super(props);
+    const stateOptions = props.addresses.map((address) => {
+      return { key: address, value: address, text: address };
+    });
+    stateOptions.push(
+      { key: '', value: '', text: 'None' },
+    );
     this.state = {
-      searchQuery: '',
-      value: '',
+      searchQuery: props.returnAddress,
+      value: props.tutorial ? props.addresses[0] : '',
       error: false,
       errorMessage: '',
       triggerAnimation: false,
+      stateOptions,
     }
   }
 
@@ -29,11 +36,13 @@ class DropdownExampleSearchQuery extends Component {
         ));
       }
     } catch (error) {
+
       if (error instanceof utils.InvalidInputFormat) {
         return new OperationResult(false, new Error(
           `Unrecognised address format. Please supply a P2PKH address.`
         ));
       }
+
       return new OperationResult(false, new Error(
         `An unexpected error has occurred.`
       ));
@@ -54,6 +63,7 @@ class DropdownExampleSearchQuery extends Component {
           `Unrecognised address network. Please supply a P2PKH address.`
         ));
       }
+
       return new OperationResult(false, new Error(
         `An unexpected error has occurred.`
       ));
@@ -63,13 +73,18 @@ class DropdownExampleSearchQuery extends Component {
   }
 
   handleChange = (e, { value }) => {
-    if (!this.state.error) {
+    const validation = this.validateAddress(value);
+    if (validation.success) {
       this.setState({
         value: value,
+        error: false,
+        errorMessage: '',
       });
-      this.props.callback(value);
+      this.props.setReturnAddress(value);
     } else {
       this.setState({
+        error: true,
+        errorMessage: validation.error.message,
         triggerAnimation: !this.state.triggerAnimation,
       });
     }
@@ -77,8 +92,8 @@ class DropdownExampleSearchQuery extends Component {
 
   handleSearchChange = (e, { searchQuery }) => {
     const validation = this.validateAddress(searchQuery);
-    console.log('state : '+JSON.stringify(this.state))
-    if (!validation.success) {
+
+    if (validation.success) {
       this.setState({
         searchQuery,
         error: false,
@@ -96,8 +111,8 @@ class DropdownExampleSearchQuery extends Component {
   }
 
   get stateOptions () {
-    const stateOptions = [ { key: 'AL', value: 'AL', text: 'Alabama' } ];
-    if (this.state.searchQuery.length) {
+    const stateOptions = this.state.stateOptions.slice(0);
+    if (this.state.searchQuery.length && !this.props.addresses.includes(this.state.searchQuery)) {
       stateOptions.push({ key: this.state.searchQuery, value: this.state.searchQuery, text: this.state.searchQuery });
     }
     return stateOptions;
@@ -134,4 +149,4 @@ class DropdownExampleSearchQuery extends Component {
     )
   }
 }
-export default DropdownExampleSearchQuery;
+export default AddressDropdown;

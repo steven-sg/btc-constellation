@@ -31,7 +31,7 @@ class ContributionFrame extends Component {
     }, 0);
     return (
       <div style={{flexGrow: '1', display: 'flex', flexDirection:'column', overflow: 'auto'}}>
-        <ContributionInputFrame callback={this.props.addTransaction} currency={this.props.currency} contributions={contributions} tutorial={this.props.tutorial}/>
+        <ContributionInputFrame addTransactions={this.props.addTransactions} currency={this.props.currency} contributions={contributions} tutorial={this.props.tutorial} network={this.props.network}/>
         <ContributionList contributions={contributions} callback={this.props.removeTransaction} currency={this.props.currency}/>
         <BalanceSegment balance={balance} currency={this.props.currency} callback={this.props.setCurrency} upward={true}/>
       </div>

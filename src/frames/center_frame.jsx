@@ -49,7 +49,8 @@ class CenterFrame extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      frame: startingFrameMeta,
+      // frame: startingFrameMeta,
+      frame: transactionFrameMeta,
       txs: [],
       payments: [],
       privKeys: {},
@@ -63,9 +64,12 @@ class CenterFrame extends Component {
       network: null,
       error: false,
       errorMessage: '',
-      changePayment: '',
+      returnAddress: '',
+      returnPayment: null,
       tutorial: false,
     };
+    // TODO I dont think return address is needed above
+    // TODO Check what happens to selected fee frame address if address gets removed
   }
 
   handleOpenModal = () => {
@@ -79,28 +83,56 @@ class CenterFrame extends Component {
     });
   }
 
-  addTransaction = (tx) => {
-    let duplicateTx = false;
-    this.state.txs.forEach((transaction) => {
-      if (!duplicateTx && transaction.txHash === tx.txHash && Object.keys(transaction.outputs)[0] === Object.keys(tx.outputs)[0]) {
-        duplicateTx = true;
-      }
-    });
-    if (!duplicateTx) {
-      let txs = this.state.txs.slice(0);
-      txs.push(tx);
-      this.setState({txs});
-      return new OperationResult(true);
+  addTransactions = (txs) => {
+    console.log('txs', JSON.stringify(txs));
+    const transactions = Array.isArray(txs) ? txs : [txs];
+    console.log('transactions', JSON.stringify(transactions));
+    const validation = this.checkDuplicateTransactions(transactions);
+    if (!validation.success) {
+      return validation;
     }
-    return new OperationResult(false, new Error(`${tx.txHash}:${tx.outputIndex} already exists. Duplicate contributions are not allowed.`));
+    let stateTxs = this.state.txs.slice(0);
+    stateTxs = [...stateTxs, ...transactions]
+    this.setState({txs: stateTxs});
+    return new OperationResult(true);
+  }
+
+  checkDuplicateTransactions = (txs) => {
+    const transactions = Array.isArray(txs) ? txs : [txs];
+    const stateTxs = this.state.txs;
+    let result = new OperationResult(true);;
+
+    nestedLoops: for (let i = 0; i < transactions.length; i += 1) {
+      const transaction = transactions[i];
+      for (let j = 0; j < stateTxs.length; j += 1) {
+        const tx = stateTxs[i];
+        if (transaction.txHash === tx.txHash && Object.keys(transaction.outputs)[0] === Object.keys(tx.outputs)[0]) {
+          //Object keys implementation above assumes single output transaction
+          console.log('boop');
+          result = new OperationResult(
+            false,
+            new Error(`${tx.txHash}:${Object.keys(tx.outputs)[0]} already exists. Please remove the transaction and try again.`)
+          );
+          break nestedLoops;
+        }
+      }
+    }
+
+    return result;
   }
 
   removeTransaction = (txHash, outputIndex) => {
     let txs = this.state.txs.slice(0);
     const txIndex = txs.findIndex((tx) => {
+      console.log('outputIndex',outputIndex);
+      console.log('Object.keys(tx.outputs)[0]',Object.keys(tx.outputs)[0]);
+      console.log('Object.keys(tx.outputs)[0] === outputIndex',Object.keys(tx.outputs)[0] === outputIndex);
       return tx.txHash === txHash && Object.keys(tx.outputs)[0] === outputIndex;
     });
+    console.log('txIndex',txIndex);
+    console.log('txs',txs);
     txs.splice(txIndex, 1);
+    console.log('txs.splice(txIndex, 1);', txs);
     this.setState({txs});
     this.removePrivateKey(`${txHash}:${outputIndex}`);
   }
@@ -164,10 +196,14 @@ class CenterFrame extends Component {
     this.setState({currency});
   }
 
-  setChangePayment = (changePayment) => {
-    this.setState({changePayment});
+  setReturnAddress = (returnAddress) => {
+    this.setState({returnAddress});
   }
 
+  setReturnPayment = (returnPayment) => {
+    console.log('adding return payment', JSON.stringify(returnPayment));
+    this.setState({returnPayment});
+  }
   validate = () => {
     switch (this.state.frame.value) {
       case 'starting':
@@ -188,7 +224,10 @@ class CenterFrame extends Component {
         }
         return new OperationResult(false, new Error('Please ensure that you have unlocked each of the transactions.'));
       case 'fees':
+      if(this.validatePrivKeys()) {
         return new OperationResult(true);
+      }
+      return new OperationResult(false, new Error('Please ensure that you have unlocked each of the transactions.'));
       case 'transaction':
         return new OperationResult(false);
       default:
@@ -214,6 +253,7 @@ class CenterFrame extends Component {
   
     return totalContributionValue - totalPaymentValue;
   }
+
   getPrivKeyArgs = () => {
     const privKeysArg = [];
     let isValid = true;
@@ -225,9 +265,6 @@ class CenterFrame extends Component {
       }
       isValid = false;
     });
-    console.log('contributions ' + JSON.stringify(this.contributions));
-    console.log('privKeyArgs ' + privKeysArg);
-    console.log('isValid ' + isValid);
     if (isValid) {
       return privKeysArg;
     }
@@ -235,15 +272,28 @@ class CenterFrame extends Component {
     return isValid;
   }
 
-  validatePrivKeys = () => {
+  get modTransaction () {
     const privKeysArg = this.getPrivKeyArgs()
 
-    if (privKeysArg) {
-      const modTx = transaction.createSignedTransaction(this.contributions, this.state.payments, privKeysArg);
-      this.setState({modTx});
-      return true;
+    const payments = this.state.payments.slice(0);
+    console.log('validate', JSON.stringify(this.state.returnPayment));
+    if (this.state.returnPayment) {
+      payments.push(this.state.returnPayment);
     }
-    return false;
+    const modTx = transaction.createSignedTransaction(this.contributions, payments, privKeysArg);
+    console.log('a', utils.joinArray(modTx.transactionDict).array.join(''));
+    return modTx;
+  }
+
+  validatePrivKeys = () => {
+    // TODO not ideal validation
+    console.log('running validation');
+    const privs = this.getPrivKeyArgs();
+    if (!privs) {
+      return false;
+    }
+    this.setState({modTx:this.modTransaction});
+    return true;
   }
 
   get contributions () {
@@ -257,12 +307,13 @@ class CenterFrame extends Component {
       case 'starting':
         return (<StartingFrame callback={this.setTransactionMode}/>);
       case 'contribution':
-        return (<ContributionFrame addTransaction={this.addTransaction}
+        return (<ContributionFrame addTransactions={this.addTransactions}
                                    removeTransaction={this.removeTransaction}
                                    contributions={this.contributions} 
                                    currency={this.state.currency}
                                    setCurrency={this.setCurrency}
-                                   tutorial={this.state.tutorial}/>);
+                                   tutorial={this.state.tutorial}
+                                   network={this.state.network}/>);
       case 'payment':
         return (<PaymentFrame callback={this.appendToPayments}
                               contributions={this.contributions}
@@ -280,12 +331,17 @@ class CenterFrame extends Component {
                              privKeys={this.state.privKeys}
                              tutorial={this.state.tutorial}/>;
       case 'fees':
-        return (<FeesFrame callback={this.changePayment}
+        return (<FeesFrame setReturnAddress={this.setReturnAddress}
                            addresses={this.getAllAddresses()}
                            contributions={this.contributions}
                            payments={this.state.payments}
                            privKeysArg={this.getPrivKeyArgs()}
-                           balance={this.calculateBalance()}/>);
+                           balance={this.calculateBalance()}
+                           network={this.state.network}
+                           tutorial={this.state.tutorial}
+                           returnAddress={this.state.returnAddress}
+                           setReturnPayment={this.setReturnPayment}
+                           returnPayment={this.state.returnPayment}/>);
       case 'transaction':
         return <TransactionFrame contributions={this.contributions}
                                  payments={this.state.payments}
@@ -333,8 +389,10 @@ class CenterFrame extends Component {
   }
 
   handleNavigation = (direction) => {
+    console.log('navigating', direction);
     if(direction === 'next') {
       const validationResult = this.validate();
+      console.log('validated', JSON.stringify(validationResult));
       if (!validationResult.success) {
         this.setState({
           error: true,
@@ -380,7 +438,9 @@ class CenterFrame extends Component {
     this.setState({loading: true});
     this.state.modTx.pushtx()
     .then((response) => {
-      this.setState({loading: false, publish: true, publishMessage: response, modalOpen:true, publishResult:'Succeeded'});
+      console.log(JSON.stringify(response));
+      console.log(JSON.stringify(response.data));
+      this.setState({loading: false, publish: true, publishMessage: response.data, modalOpen:true, publishResult:'Succeeded'});
     }).catch((error) => {
       this.setState({loading: false, publish: true, publishMessage: error.message, modalOpen:true, publishResult:'Failed'});
     });

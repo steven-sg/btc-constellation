@@ -1,31 +1,16 @@
 import React, { Component } from 'react';
 import { Card, Form, Message } from 'semantic-ui-react'
-import { model, unloggedUtils, utils } from 'easy_btc';
+import { model, unloggedUtils, utils, services } from 'easy_btc';
 import { OperationResult, ValidationError } from '../util';
 
-class paymentInputFrame extends Component {
+class AutomaticContributionInputFrame extends Component {
   constructor(props) {
     super(props);
-    const state = {
+    this.state = {
       errorList: [],
-      'Amount error': false,
+      'Bitcoin Address': '',
       'Bitcoin Address error': false,
       otherError: false,
-    };
-    const formValues = this.getInitialFormValues(this.props.tutorial);
-    this.state = {...state, ...formValues}
-  }
-
-  getInitialFormValues = (prefill) => {
-    if (prefill) {
-      return {
-        'Bitcoin Address': 'mjUDEsMXuYFZSrERVZjzHpznNJFzNUBoop',
-        'Amount': '10000000',
-      };
-    }
-    return {
-      'Bitcoin Address': '',
-      'Amount': '',
     };
   }
 
@@ -75,31 +60,13 @@ class paymentInputFrame extends Component {
         }
 
         return new OperationResult(true);
-      case 'Amount':
-        return new OperationResult(true);
       default:
         return; // TODO should this throw an error?
     }
   }
 
-  get amountStepSize () {
-    switch(this.props.currency.toLowerCase()) {
-      case 'btc':
-        return 0.00000001;
-      case 'mbtc':
-        return 0.00001;
-      case 'satoshi':
-        return 1;
-      default:
-        return 1;
-    }
-  }
-
   validateSubmission = () => {
-    if (this.state['Bitcoin Address error']
-           || this.state['Amount error']
-           || !this.state['Bitcoin Address'] || !this.state['Bitcoin Address'].length
-           || !this.state['Amount'] || !this.state['Amount'].length) {
+    if (this.state['Bitcoin Address error'] || !this.state['Bitcoin Address']) {
       return new OperationResult(false, new ValidationError('Please ensure that all required fields are filled.'));
     }
     return new OperationResult(true);
@@ -123,11 +90,28 @@ class paymentInputFrame extends Component {
     const { success, error } = this.validateSubmission();
     if (!success) {
       this.setState({otherError: error.message});
-      return
+    } else {
+      services.pullUnspentTransactions(this.state["Bitcoin Address"])
+      .then((response) => {
+        const transaction = response.data[0];
+        const outputs = transaction.outputs;
+        const splitTransactions = Object.keys(outputs).map(
+          (key) => {
+            const transactionOutput = [new model.transaction.TransactionOutput(
+              outputs[key].outputIndex.toString(), outputs[key].scriptPubKey, outputs[key].balance)];
+            const tx = new model.transaction.Transaction(transaction.txHash, transactionOutput);
+            return tx;
+          }
+        );
+        console.log(JSON.stringify(splitTransactions))
+        const submissionResult = this.props.addTransactions(splitTransactions);
+        if (!submissionResult.success) {
+          this.setState({otherError: submissionResult.error.message});
+        }
+      }).catch((error) => {
+        this.setState({otherError: error.message});
+      });
     }
-    const amount = unloggedUtils.convertCurrencyTo(this.state['Amount'], 'satoshi', this.props.currency);
-    const payment = new model.transaction.Payment(this.state['Bitcoin Address'], amount);
-    this.props.callback(payment);
   }
 
   appendError = (errorList, name, error) => {
@@ -159,46 +143,31 @@ class paymentInputFrame extends Component {
   render() {
     const otherError = this.state.otherError;
     const addressError = this.state['Bitcoin Address error'];
-    const amountError = this.state['Amount error'];
-    const formError = addressError || amountError || (otherError && otherError.length > 0);
+    const formError = addressError || (otherError && otherError.length > 0);
     return (
-      <div style={{margin: '0.5rem'}}>
-        <Card style={{width: '100%'}}>
-          <Card.Content>
-            <Form onSubmit={this.handleSubmit} error={formError} style={{margin: '0'}}>
-              <Message
-                error
-                header='Invalid Input'
-                content={
-                  <p style={{overflowWrap: 'break-word'}}>
-                    {otherError || (this.state.errorList.length && this.state.errorList[0].message)}
-                  </p>
-                }
-              />
-              <Form.Group>
-                <Form.Input style={{marginBottom: '1rem'}}
-                            label='Bitcoin Address'
-                            name='Bitcoin Address'
-                            value={this.state['Bitcoin Address']}
-                            onChange={this.handleChange}
-                            placeholder='Bitcoin Address' width={10}
-                            error={addressError}/>
-                <Form.Input style={{marginBottom: '1rem'}}
-                            label='Amount'
-                            name='Amount'
-                            value={this.state['Amount']}
-                            onChange={this.handleChange}
-                            placeholder='Amount' width={6}
-                            type='number' min={0}
-                            error={amountError}/>
-              </Form.Group>
-              <Form.Button content='Add Payment' disabled={formError}/>
-            </Form>
-          </Card.Content>
-        </Card>
-      </div>
+      <Form onSubmit={this.handleSubmit} error={formError} style={{margin: '0.5rem'}}>
+        <Message
+          error
+          header='Invalid Input'
+          content={
+            <p style={{overflowWrap: 'break-word'}}>
+              {otherError || (this.state.errorList.length && this.state.errorList[0].message)}
+            </p>
+          }
+        />
+        <Form.Group>
+          <Form.Input style={{marginBottom: '1rem'}}
+                      label='Bitcoin Address'
+                      name='Bitcoin Address'
+                      value={this.state['Bitcoin Address']}
+                      onChange={this.handleChange}
+                      placeholder='Bitcoin Address' width={10}
+                      error={addressError}/>
+        </Form.Group>
+        <Form.Button content='Add Contribution' disabled={formError}/>
+      </Form>
     );
   }
 }
 
-export default paymentInputFrame;
+export default AutomaticContributionInputFrame;

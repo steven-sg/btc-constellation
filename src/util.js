@@ -16,3 +16,8 @@ export class ValidationError extends Error {
     this.message = message;
   }
 }
+
+export function PascalCase(string) {
+  const wordArray = string.split(' ');
+  return wordArray.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}

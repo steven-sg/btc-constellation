@@ -126,7 +126,7 @@ class ContributionInputManualFrame extends Component {
                                                                           : null;
     const transactionOutput = [new model.transaction.TransactionOutput(Number(this.state['Output Index']).toString(), this.state['ScriptPubKey'], balance)];
     const tx = new model.transaction.Transaction(this.state['Transaction Hash'], transactionOutput);
-    const submissionResult = this.props.callback(tx);
+    const submissionResult = this.props.addTransactions(tx);
     if (!submissionResult.success) {
       this.setState({otherError: submissionResult.error.message});
     }
