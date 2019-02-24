@@ -42,7 +42,6 @@ class FeesFrame extends Component {
   handleChange = (e, {name, value}) => {
     const state = this.calculateFeeState(value);
     this.setState(state);
-    console.log('adding return payment', JSON.stringify(state.returnPayment));
     this.props.setReturnPayment(state.returnPayment);
   }
 

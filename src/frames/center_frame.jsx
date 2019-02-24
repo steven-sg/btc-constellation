@@ -11,6 +11,7 @@ import { transaction, utils } from 'easy_btc';
 import { OperationResult } from '../util';
 import ErrorModal from './error_modal';
 import SubmissionModal from './submission_modal';
+import HelpModal from './help_modal';
 
 const startingFrameMeta = {
   value: 'starting',
@@ -48,9 +49,14 @@ const navLookup = [
 class CenterFrame extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      // frame: startingFrameMeta,
-      frame: transactionFrameMeta,
+    this.state = this.defaultState;
+  }
+
+  get defaultState () {
+     // TODO I dont think return address is needed above
+    // TODO Check what happens to selected fee frame address if address gets removed
+    return {
+      frame: startingFrameMeta,
       txs: [],
       payments: [],
       privKeys: {},
@@ -67,10 +73,10 @@ class CenterFrame extends Component {
       returnAddress: '',
       returnPayment: null,
       tutorial: false,
+      showhelp: false,
     };
-    // TODO I dont think return address is needed above
-    // TODO Check what happens to selected fee frame address if address gets removed
   }
+
 
   handleOpenModal = () => {
     this.setState({ modalOpen: true });
@@ -80,13 +86,12 @@ class CenterFrame extends Component {
     this.setState({
       modalOpen: false,
       error: false,
+      showhelp: false,
     });
   }
 
   addTransactions = (txs) => {
-    console.log('txs', JSON.stringify(txs));
     const transactions = Array.isArray(txs) ? txs : [txs];
-    console.log('transactions', JSON.stringify(transactions));
     const validation = this.checkDuplicateTransactions(transactions);
     if (!validation.success) {
       return validation;
@@ -108,7 +113,6 @@ class CenterFrame extends Component {
         const tx = stateTxs[i];
         if (transaction.txHash === tx.txHash && Object.keys(transaction.outputs)[0] === Object.keys(tx.outputs)[0]) {
           //Object keys implementation above assumes single output transaction
-          console.log('boop');
           result = new OperationResult(
             false,
             new Error(`${tx.txHash}:${Object.keys(tx.outputs)[0]} already exists. Please remove the transaction and try again.`)
@@ -124,15 +128,9 @@ class CenterFrame extends Component {
   removeTransaction = (txHash, outputIndex) => {
     let txs = this.state.txs.slice(0);
     const txIndex = txs.findIndex((tx) => {
-      console.log('outputIndex',outputIndex);
-      console.log('Object.keys(tx.outputs)[0]',Object.keys(tx.outputs)[0]);
-      console.log('Object.keys(tx.outputs)[0] === outputIndex',Object.keys(tx.outputs)[0] === outputIndex);
       return tx.txHash === txHash && Object.keys(tx.outputs)[0] === outputIndex;
     });
-    console.log('txIndex',txIndex);
-    console.log('txs',txs);
     txs.splice(txIndex, 1);
-    console.log('txs.splice(txIndex, 1);', txs);
     this.setState({txs});
     this.removePrivateKey(`${txHash}:${outputIndex}`);
   }
@@ -201,9 +199,9 @@ class CenterFrame extends Component {
   }
 
   setReturnPayment = (returnPayment) => {
-    console.log('adding return payment', JSON.stringify(returnPayment));
     this.setState({returnPayment});
   }
+
   validate = () => {
     switch (this.state.frame.value) {
       case 'starting':
@@ -276,18 +274,15 @@ class CenterFrame extends Component {
     const privKeysArg = this.getPrivKeyArgs()
 
     const payments = this.state.payments.slice(0);
-    console.log('validate', JSON.stringify(this.state.returnPayment));
     if (this.state.returnPayment) {
       payments.push(this.state.returnPayment);
     }
     const modTx = transaction.createSignedTransaction(this.contributions, payments, privKeysArg);
-    console.log('a', utils.joinArray(modTx.transactionDict).array.join(''));
     return modTx;
   }
 
   validatePrivKeys = () => {
     // TODO not ideal validation
-    console.log('running validation');
     const privs = this.getPrivKeyArgs();
     if (!privs) {
       return false;
@@ -388,11 +383,14 @@ class CenterFrame extends Component {
     return buttons;
   }
 
-  handleNavigation = (direction) => {
-    console.log('navigating', direction);
+  handleNavigation = (direction, showModal) => {
+    if (direction === 'back' && this.state.frame === contributionFrameMeta) {
+      this.setState(this.defaultState);
+      return;
+    }
+
     if(direction === 'next') {
       const validationResult = this.validate();
-      console.log('validated', JSON.stringify(validationResult));
       if (!validationResult.success) {
         this.setState({
           error: true,
@@ -405,7 +403,14 @@ class CenterFrame extends Component {
 
     const directionValue = direction === 'next' ? 1: -1;
     const frame = navLookup[this.state.frame.order + directionValue];
-    this.setState({frame});
+    // TODO this way of show modal might not be ideal
+    const showhelp = this.state.tutorial || showModal? true: false;
+    const modalOpen = showhelp;
+    this.setState({
+      frame,
+      showhelp,
+      modalOpen,
+    });
   }
 
   handleClick = (e, { value }) => {
@@ -425,7 +430,7 @@ class CenterFrame extends Component {
           network: 'testnet',
           tutorial: true,
         });
-        break;
+        return this.handleNavigation('next', true);
       default:
         alert('error');
         return false;
@@ -436,25 +441,43 @@ class CenterFrame extends Component {
 
   publish = () => {
     this.setState({loading: true});
-    this.state.modTx.pushtx()
+    this.state.modTx.pushtx(this.state.network)
     .then((response) => {
-      console.log(JSON.stringify(response));
-      console.log(JSON.stringify(response.data));
       this.setState({loading: false, publish: true, publishMessage: response.data, modalOpen:true, publishResult:'Succeeded'});
     }).catch((error) => {
       this.setState({loading: false, publish: true, publishMessage: error.message, modalOpen:true, publishResult:'Failed'});
     });
   }
 
+  get modal () {
+    if (this.state.error) {
+      return (
+        <ErrorModal message={this.state.errorMessage}
+                    open={this.state.modalOpen}
+                    handleOpen={this.handleOpenModal}
+                    handleClose={this.handleCloseModal}/>
+      );
+    } else if (this.state.showhelp) {
+      return <HelpModal open={this.state.modalOpen}
+                        handleOpen={this.handleOpenModal}
+                        handleClose={this.handleCloseModal}
+                        frame={this.state.frame.value}/>;
+    }
+    return (
+      <SubmissionModal message={this.state.publishMessage}
+                       open={this.state.modalOpen}
+                       handleOpen={this.handleOpenModal}
+                       handleClose={this.handleCloseModal}
+                       result={this.state.publishResult}/>
+    );
+  }
   render() {
     return (
       <div style={{height: '100%', width:'100%', display: 'flex', flexDirection: 'column'}}>
         <Dimmer active={this.state.loading}>
           <Loader />
         </Dimmer>
-        { this.state.error ?
-          <ErrorModal message={this.state.errorMessage} open={this.state.modalOpen} handleOpen={this.handleOpenModal} handleClose={this.handleCloseModal}/>
-          : <SubmissionModal message={this.state.publishMessage} open={this.state.modalOpen} handleOpen={this.handleOpenModal} handleClose={this.handleCloseModal} result={this.state.publishResult}/> }
+        {this.modal}
         {this.frame}
         <div style={{margin: '0.5rem'}}>
           {this.navigationButtons}

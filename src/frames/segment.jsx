@@ -1,32 +1,37 @@
 import React, { Component } from 'react'
 import { Segment, Header } from 'semantic-ui-react'
-import { utils } from 'easy_btc';
+import { utils, dataStructures } from 'easy_btc';
 import { PascalCase } from '../util';
+import { GenericLog } from './segments';
 import VisibilitySensor from 'react-visibility-sensor';
 class ComplexSegmentGroup extends Component {
   state = {}
-
   createTitleSegment = (item, titleIndex) => {
     return (
       <Segment inverted style={{overflow: 'auto', marginTop: titleIndex ? '1rem' : 0, fontStyle: 'bold'}} key={item} color='yellow'>
-          <Header as='h3'>{ PascalCase(item) }</Header>
+          <Header as='h4'>{ PascalCase(item) }</Header>
       </Segment>
     );
   }
 
-  createSegment = (item, index=0) => {
+  createSegment = (item, key, index) => {
     if (utils.isIterable(item)) {
       const firstItem = item[0];
       const tailItems = [...item].splice(1);
-      const firstSegment = this.createSegment(firstItem);
-      return [firstSegment].concat(this.createSubSegments(tailItems));
+      const firstSegment = this.createSegment(firstItem, key, index + 1);
+      return [firstSegment].concat(this.createSubSegments(tailItems, key, index + 1));
+    } else if (item instanceof dataStructures.OrderedDict) {
+      const items = item.getKeys().map((key, subIndex) => {
+        return this.createSegment(item.getValue(key), key, `${index}.${subIndex}`);
+      });
+      return items;
     }
     return (
-      <VisibilitySensor>
+      <VisibilitySensor key={`${key}.${index}.${item.log}`}>  
         {({isVisible}) => {
           return (
-            <Segment style={{overflow: 'auto'}} key={item} >
-              { item }
+            <Segment style={{overflow: 'auto', wordBreak: 'break-all'}}>
+              <GenericLog log={item} showResult/>
             </Segment>
           )}
         }
@@ -34,40 +39,44 @@ class ComplexSegmentGroup extends Component {
     );
   };
 
-  createSubSegments = (items) => {
-    const subSegments = items.map((item, i) => (
-      <div key={item} style={{display: 'flex'}}>
-        <div style={{backgroundColor: 'grey', minWidth:'10px'}} />
-        <Segment style={{overflow: 'auto', marginTop:'0', flexGrow:'1', borderBottom:'none', borderRadius:'0'}} >{ item }</Segment>
-      </div>));
+  createSubSegments = (items, key, subIndex) => {
+    const subSegments = items.map((item, i) => {
+      if (item.hasSubaction && item.hasSubaction()) {
+        return item.subaction.map((subaction) => {
+          return(
+            <div key={`${key}.${subIndex}.${i}.${item.log}`} style={{display: 'flex'}}>
+              <div style={{backgroundColor: 'grey', minWidth:'20px'}} />
+              <Segment style={{overflow: 'auto', marginTop:'0', flexGrow:'1', borderBottom:'none', borderRadius:'0', wordBreak: 'break-all'}}>
+                <GenericLog log={subaction} showResult/>
+              </Segment>
+            </div>
+          );
+        })
+      }
+      return (
+        <div key={`${key}.${subIndex}.${i}.${item.log}`} style={{display: 'flex'}}>
+          <div style={{backgroundColor: 'grey', minWidth:'10px'}} />
+          <Segment style={{overflow: 'auto', marginTop:'0', flexGrow:'1', borderBottom:'none', borderRadius:'0', wordBreak: 'break-all'}}>
+            <GenericLog log={item} showResult/>
+          </Segment>
+        </div>
+      );
+    });
   
     return subSegments;
   };
 
-  handleContextRef = contextRef => this.setState({ contextRef });
-
-  // render() {
-  //   let { items } = this.props;
-  //   return (
-  //     <div ref={this.handleContextRef} style={{ flexBasis: 1, flexShrink: 1, flexGrow: 1, overflowY:'scroll', margin:'0.5rem', paddingRight:'0.5rem'}}>
-  //       <Segment.Group >
-  //           { items.map((item, i) => this.createSegment(item, i)) }
-  //       </Segment.Group>
-  //     </div>
-  //   );
-  // }
   render() {
-    let { items, transaction } = this.props;
+    let { transaction } = this.props;
     return (
-      <div ref={this.handleContextRef} style={{ flexBasis: 1, flexShrink: 1, flexGrow: 1, overflowY:'scroll', margin:'0.5rem', paddingRight:'0.5rem'}}>
+      <div style={{ flexBasis: 1, flexShrink: 1, flexGrow: 1, overflowY:'scroll', margin:'0.5rem', paddingRight:'0.5rem'}}>
         { transaction.logger.getKeys().map((key, i) =>
           {
             return (
-              <div>
-                {/* <Segment style={{marginTop: i? '1rem': 0}}>{PascalCase(key)}</Segment> */}
+              <div key={key}>
                 <Segment.Group>
                   { this.createTitleSegment(key, i) }
-                  { utils.joinArray(transaction.logger.getValue(key)).array.map((array, i) => this.createSegment(array, i)) }
+                  { transaction.logger.getValue(key).map((log, index) => this.createSegment(log, key, index)) }
                 </Segment.Group>
               </div>
             );

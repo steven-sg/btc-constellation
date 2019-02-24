@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Card, Form, Message } from 'semantic-ui-react'
-import { model, unloggedUtils, utils, services } from 'easy_btc';
+import { Form, Message } from 'semantic-ui-react'
+import { model, utils, services } from 'easy_btc';
 import { OperationResult, ValidationError } from '../util';
 
 class AutomaticContributionInputFrame extends Component {
@@ -91,7 +91,7 @@ class AutomaticContributionInputFrame extends Component {
     if (!success) {
       this.setState({otherError: error.message});
     } else {
-      services.pullUnspentTransactions(this.state["Bitcoin Address"])
+      services.pullUnspentTransactions(this.state["Bitcoin Address"], this.props.network)
       .then((response) => {
         const transaction = response.data[0];
         const outputs = transaction.outputs;
@@ -103,13 +103,17 @@ class AutomaticContributionInputFrame extends Component {
             return tx;
           }
         );
-        console.log(JSON.stringify(splitTransactions))
         const submissionResult = this.props.addTransactions(splitTransactions);
         if (!submissionResult.success) {
           this.setState({otherError: submissionResult.error.message});
         }
       }).catch((error) => {
-        this.setState({otherError: error.message});
+        if (error.status === 429) {
+          this.setState({otherError: 'ERROR 429: Too Many Request. This request is being rate limited. Try again with a different input or use the manual input alternative.'});
+        } else {
+          const errMessage = error.message || `${error.status}`;
+          this.setState({otherError: errMessage});
+        }
       });
     }
   }
@@ -161,7 +165,7 @@ class AutomaticContributionInputFrame extends Component {
                       name='Bitcoin Address'
                       value={this.state['Bitcoin Address']}
                       onChange={this.handleChange}
-                      placeholder='Bitcoin Address' width={10}
+                      placeholder='Bitcoin Address' width={16}
                       error={addressError}/>
         </Form.Group>
         <Form.Button content='Add Contribution' disabled={formError}/>

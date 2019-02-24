@@ -1,7 +1,7 @@
 import React from 'react'
 import { Modal } from 'semantic-ui-react'
 
-function TransactionModal ({open, handleOpen, handleClose, message}) {
+function ErrorModal ({open, handleOpen, handleClose, message}) {
   return (
     <Modal open={open}
           onOpen={handleOpen}
@@ -16,4 +16,4 @@ function TransactionModal ({open, handleOpen, handleClose, message}) {
   );
 }
 
-export default TransactionModal;
+export default ErrorModal;
