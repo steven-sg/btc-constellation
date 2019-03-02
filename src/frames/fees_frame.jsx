@@ -9,19 +9,19 @@ import { fees, transaction, model, utils } from 'easy_btc';
 class FeesFrame extends Component {
   constructor(props) {
     super(props);
-    const totalFee = props.returnAddress ? props.balance - props.returnPayment.amount : props.balance;
-    const state = this.calculateFeeState(totalFee);
-    props.setReturnPayment(state.returnPayment);
+    const totalFee = props.returnPayment ? props.balance - props.returnPayment.amount : props.balance;
+    const returnAddress = props.returnPayment ? props.returnPayment.to : '';
+    const state = this.calculateFeeState(totalFee, returnAddress, props.returnPayment);
     this.state = {...{
-      returnAddress: props.returnAddress,
+      returnAddress: returnAddress,
       message: `Autmatic fee calculation may not be able to use the exact fee rate requested.
         In such cases it will instead use the closest fee rate possible.`,
     }, ...state};
   }
   
-  componentDidUpdate(prevProps) {
-    if (this.props.returnAddress !== prevProps.returnAddress) {
-      const state = this.calculateFeeState(this.state.totalFee);
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.returnAddress !== prevState.returnAddress) {
+      const state = this.calculateFeeState(this.state.totalFee, this.state.returnAddress);
       this.setState(state);
       this.props.setReturnPayment(state.returnPayment);
     }
@@ -39,16 +39,24 @@ class FeesFrame extends Component {
     ];
   }
 
+  setReturnAddress = (returnAddress) => {
+    this.setState({returnAddress});
+  }
+
   handleChange = (e, {name, value}) => {
-    const state = this.calculateFeeState(value);
+    const state = this.calculateFeeState(value, this.state.returnAddress);
     this.setState(state);
     this.props.setReturnPayment(state.returnPayment);
   }
 
-  calculateNoReturnAddressState = (totalFee) => {
+  calculateDefaultAddressState = (totalFee, presetPayment) => {
+    let payments = this.props.payments;
+    if (presetPayment) {
+      payments = [...payments, presetPayment]
+    }
     const modTx = transaction.createSignedTransaction(
       this.props.contributions,
-      this.props.payments,
+      payments,
       this.props.privKeysArg);
     const feeRate = Math.ceil(fees.getFeeRate(modTx, totalFee));
     // TODO do something about where returnAddress is stored please
@@ -63,10 +71,11 @@ class FeesFrame extends Component {
     };
   }
 
-  calculateFeeState = (value) => {
-    if (!this.props.returnAddress) {
-      return this.calculateNoReturnAddressState(value);
+  calculateFeeState = (value, returnAddress, presetPayment) => {
+    if (!returnAddress || presetPayment) {
+      return this.calculateDefaultAddressState(value, presetPayment);
     } else if (!utils.isDecimalString(value, true) || value < 1) {
+      // TODO move to error handling function
       if (value === '') {
         return {
           totalFee: '',
@@ -79,7 +88,7 @@ class FeesFrame extends Component {
         };
       }
       return {};
-    } 
+    }
     const balance = this.props.balance - value;
     if (balance < 0) {
       return {
@@ -92,13 +101,14 @@ class FeesFrame extends Component {
         returnPayment: null,
       };
     }
-    const newPayment = new model.transaction.Payment(this.props.returnAddress, balance);
-    const payments = this.props.payments.concat(newPayment);
+    const newPayment = new model.transaction.Payment(returnAddress, balance);
+    const payments = [...this.props.payments, newPayment];
     const modTx = transaction.createSignedTransaction(
       this.props.contributions,
       payments,
       this.props.privKeysArg);
     const feeRate = Math.ceil(fees.getFeeRate(modTx, value));
+    // TODO the way that this handles returnPayment kinda sucks
     return {
       totalFee: value,
       feeRate,
@@ -133,7 +143,7 @@ class FeesFrame extends Component {
         <div style={{display: 'flex', flexDirection:'column', background: lime, margin: '0 0.5rem 0.5rem 0.5rem', borderRadius: '0 0 0.5rem 0.5rem'}}>
           <div style={{fontSize: '2em', margin: '2rem 2rem 1rem 2rem', textAlign:'center'}}>Remaining Balance: {this.state.remainingBalance} Satoshi</div>
           <div style={{display: 'flex', margin:'1rem 2rem 2rem 2rem'}}>
-            <AddressDropdown setReturnAddress={this.props.setReturnAddress} returnAddress={this.props.returnAddress} addresses={this.props.addresses} network={this.props.network} tutorial={this.props.tutorial}/>
+            <AddressDropdown setReturnAddress={this.setReturnAddress} returnAddress={this.state.returnAddress} addresses={this.props.addresses} network={this.props.network} tutorial={this.props.tutorial}/>
           </div>
           <div style={{display: 'flex', flexDirection:'column', padding:'2rem 1rem 1rem 1rem', background:lightLime, borderRadius: ' 0 0 0.5rem 0.5rem'}}>
             {this.message}
@@ -142,7 +152,7 @@ class FeesFrame extends Component {
               <Input style={{flexGrow:'0.3', margin:'0.5rem', width: '20rem'}}
                      value={this.state.totalFee}
                      onChange={this.handleChange}
-                     disabled={!this.props.returnAddress}
+                     disabled={!this.state.returnAddress}
                      label={<Dropdown defaultValue={this.currencyOptions[0].value} options={this.currencyOptions} />}
                      labelPosition='right' type='number' min={0}
                      step={1}/>

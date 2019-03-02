@@ -70,7 +70,6 @@ class CenterFrame extends Component {
       network: null,
       error: false,
       errorMessage: '',
-      returnAddress: '',
       returnPayment: null,
       tutorial: false,
       showhelp: false,
@@ -110,9 +109,9 @@ class CenterFrame extends Component {
     nestedLoops: for (let i = 0; i < transactions.length; i += 1) {
       const transaction = transactions[i];
       for (let j = 0; j < stateTxs.length; j += 1) {
-        const tx = stateTxs[i];
+        const tx = stateTxs[j];
         if (transaction.txHash === tx.txHash && Object.keys(transaction.outputs)[0] === Object.keys(tx.outputs)[0]) {
-          //Object keys implementation above assumes single output transaction
+          // TODO Object keys implementation above assumes single output transaction
           result = new OperationResult(
             false,
             new Error(`${tx.txHash}:${Object.keys(tx.outputs)[0]} already exists. Please remove the transaction and try again.`)
@@ -192,10 +191,6 @@ class CenterFrame extends Component {
 
   setCurrency = (currency) => {
     this.setState({currency});
-  }
-
-  setReturnAddress = (returnAddress) => {
-    this.setState({returnAddress});
   }
 
   setReturnPayment = (returnPayment) => {
@@ -326,15 +321,13 @@ class CenterFrame extends Component {
                              privKeys={this.state.privKeys}
                              tutorial={this.state.tutorial}/>;
       case 'fees':
-        return (<FeesFrame setReturnAddress={this.setReturnAddress}
-                           addresses={this.getAllAddresses()}
+        return (<FeesFrame addresses={this.getAllAddresses()}
                            contributions={this.contributions}
                            payments={this.state.payments}
                            privKeysArg={this.getPrivKeyArgs()}
                            balance={this.calculateBalance()}
                            network={this.state.network}
                            tutorial={this.state.tutorial}
-                           returnAddress={this.state.returnAddress}
                            setReturnPayment={this.setReturnPayment}
                            returnPayment={this.state.returnPayment}/>);
       case 'transaction':

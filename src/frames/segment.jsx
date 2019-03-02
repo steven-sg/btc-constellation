@@ -3,14 +3,41 @@ import { Segment, Header } from 'semantic-ui-react'
 import { utils, dataStructures } from 'easy_btc';
 import { PascalCase } from '../util';
 import { GenericLog } from './segments';
-import VisibilitySensor from 'react-visibility-sensor';
+import Snapshot from './transaction_snapshot';
+import TransactionTitle from './transaction_title_segment';
+
 class ComplexSegmentGroup extends Component {
-  state = {}
-  createTitleSegment = (item, titleIndex) => {
+  constructor (props) {
+    super(props);
+    this.state = {};
+  }
+
+  createSection = (dictkey, dict, key) => {
+    const sectionDict = dict.getValue(dictkey);
+    const containsSubHeadings = utils.isIterable(sectionDict[0]);
+    const section = containsSubHeadings ?
+      sectionDict.map((masterLog, index) => {
+        const singularTitle = dictkey.substring(0, dictkey.length-1);
+        return this.createSegmentGroup(`${singularTitle} ${index}`, masterLog, index);
+      }) : this.createSegmentGroup(dictkey, sectionDict, key);
+
+    return section;
+  }
+
+  createSegmentGroup = (title, logArray, key = 0) => {
+    // Pulls transaction state from the append transaction log
+    let finalLog = logArray[logArray.length-1];
+    if (finalLog instanceof dataStructures.OrderedDict) {
+      const keys = finalLog.getKeys();
+      finalLog = finalLog.getValue(keys[keys.length-1]);
+      finalLog = finalLog[finalLog.length-1]
+    }
+    const transactionDict = finalLog.transactionDict.getArray();
     return (
-      <Segment inverted style={{overflow: 'auto', marginTop: titleIndex ? '1rem' : 0, fontStyle: 'bold'}} key={item} color='yellow'>
-          <Header as='h4'>{ PascalCase(item) }</Header>
-      </Segment>
+      <Segment.Group key={key}>
+        <TransactionTitle item={title} snapshot={transactionDict}/>
+        { logArray.map((log, index) => this.createSegment(log, key, index)) }
+      </Segment.Group>
     );
   }
 
@@ -22,22 +49,19 @@ class ComplexSegmentGroup extends Component {
       return [firstSegment].concat(this.createSubSegments(tailItems, key, index + 1));
     } else if (item instanceof dataStructures.OrderedDict) {
       const items = item.getKeys().map((key, subIndex) => {
-        return this.createSegment(item.getValue(key), key, `${index}.${subIndex}`);
+        return [
+          <Segment inverted color='teal' secondary>{key}</Segment>,
+          this.createSegment(item.getValue(key), key, `${index}.${subIndex}`),
+        ];
       });
       return items;
     }
     return (
-      <VisibilitySensor key={`${key}.${index}.${item.log}`}>  
-        {({isVisible}) => {
-          return (
-            <Segment style={{overflow: 'auto', wordBreak: 'break-all'}}>
-              <GenericLog log={item} showResult/>
-            </Segment>
-          )}
-        }
-      </VisibilitySensor>
-    );
-  };
+      <Segment key={`${key}.${index}.${item.log}`} style={{overflow: 'auto', wordBreak: 'break-all'}}>
+        <GenericLog log={item} showResult/>
+      </Segment>
+    )
+  }
 
   createSubSegments = (items, key, subIndex) => {
     const subSegments = items.map((item, i) => {
@@ -70,21 +94,10 @@ class ComplexSegmentGroup extends Component {
     let { transaction } = this.props;
     return (
       <div style={{ flexBasis: 1, flexShrink: 1, flexGrow: 1, overflowY:'scroll', margin:'0.5rem', paddingRight:'0.5rem'}}>
-        { transaction.logger.getKeys().map((key, i) =>
-          {
-            return (
-              <div key={key}>
-                <Segment.Group>
-                  { this.createTitleSegment(key, i) }
-                  { transaction.logger.getValue(key).map((log, index) => this.createSegment(log, key, index)) }
-                </Segment.Group>
-              </div>
-            );
-          })
-        }
+        { transaction.logger.getKeys().map((key, i) => this.createSection(key, transaction.logger, i)) }
       </div>
     );
   }
 }
 
-export default ComplexSegmentGroup
+export default ComplexSegmentGroup;
