@@ -74,20 +74,6 @@ class FeesFrame extends Component {
   calculateFeeState = (value, returnAddress, presetPayment) => {
     if (!returnAddress || presetPayment) {
       return this.calculateDefaultAddressState(value, presetPayment);
-    } else if (!utils.isDecimalString(value, true) || value < 1) {
-      // TODO move to error handling function
-      if (value === '') {
-        return {
-          totalFee: '',
-          feeRate: '',
-          remainingBalance: '',
-          error: false,
-          errorMessage: '',
-          triggerAnimation: false,
-          returnPayment: null,
-        };
-      }
-      return {};
     }
     const balance = this.props.balance - value;
     if (balance < 0) {
@@ -169,9 +155,6 @@ class FeesFrame extends Component {
             </div>
           </div>
         </div>
-        <div style={{flexGrow: '1'}}></div>
-        {/* <Segment>Address</Segment> */}
-        {/* <AddressList callback={this.props.callback} addresses={this.props.addresses}></AddressList> */}
       </div>
     );
   }

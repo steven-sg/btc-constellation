@@ -14,10 +14,7 @@ class ContributionList extends Component {
   }
 
   convertbalance = (balance) => {
-    if (balance) {
-      return unloggedUtils.convertCurrencyTo(balance, this.props.currency);
-    }
-    return 'unknown';
+    return unloggedUtils.convertCurrencyTo(balance, this.props.currency);
   }
 
   renderSegments = () => {

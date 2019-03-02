@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Card, Form, Message } from 'semantic-ui-react'
 import { model, unloggedUtils, utils } from 'easy_btc';
-import { OperationResult, ValidationError } from '../util';
+import { OperationResult, ValidationError, getCurrencyStepSize } from '../util';
 
 class paymentInputFrame extends Component {
   constructor(props) {
@@ -82,19 +82,6 @@ class paymentInputFrame extends Component {
     }
   }
 
-  get amountStepSize () {
-    switch(this.props.currency.toLowerCase()) {
-      case 'btc':
-        return 0.00000001;
-      case 'mbtc':
-        return 0.00001;
-      case 'satoshi':
-        return 1;
-      default:
-        return 1;
-    }
-  }
-
   validateSubmission = () => {
     if (this.state['Bitcoin Address error']
            || this.state['Amount error']
@@ -156,6 +143,10 @@ class paymentInputFrame extends Component {
     });
   }
 
+  get stepSize () {
+    return getCurrencyStepSize(this.props.currency.toLowerCase());
+  }
+
   render() {
     const otherError = this.state.otherError;
     const addressError = this.state['Bitcoin Address error'];
@@ -190,7 +181,8 @@ class paymentInputFrame extends Component {
                             onChange={this.handleChange}
                             placeholder='Amount' width={6}
                             type='number' min={0}
-                            error={amountError}/>
+                            error={amountError}
+                            step={this.stepSize}/>
               </Form.Group>
               <Form.Button content='Add Payment' disabled={formError}/>
             </Form>

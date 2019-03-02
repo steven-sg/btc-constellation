@@ -14,10 +14,7 @@ class PaymentList extends Component {
   }
 
   convertAmount = (amount) => {
-    if (amount) {
-      return unloggedUtils.convertCurrencyTo(amount, this.props.currency);
-    }
-    return 'unknown';
+    return unloggedUtils.convertCurrencyTo(amount, this.props.currency);
   }
 
   renderSegments = () => {

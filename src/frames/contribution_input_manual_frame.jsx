@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Form, Message } from 'semantic-ui-react'
 import { model, unloggedUtils } from 'easy_btc';
-import { OperationResult, ValidationError } from '../util';
+import { OperationResult, ValidationError, getCurrencyStepSize } from '../util';
 class ContributionInputManualFrame extends Component {
   constructor (props) {
     super(props);
@@ -68,9 +68,10 @@ class ContributionInputManualFrame extends Component {
            || this.state['Output Index error']
            || this.state['ScriptPubKey error']
            || this.state['balance error']
-           || !this.state['Transaction Hash'] || !this.state['Transaction Hash'].length
-           || !this.state['Output Index'] || !this.state['Output Index'].length
-           || !this.state['ScriptPubKey'] || !this.state['ScriptPubKey'].length) {
+           || !this.state['Transaction Hash']
+           || !this.state['Output Index']
+           || !this.state['ScriptPubKey']
+           || !this.state['Balance']) {
       return new OperationResult(false, new ValidationError('Please ensure that all required fields are filled.'));
     }
     return new OperationResult(true);
@@ -132,17 +133,8 @@ class ContributionInputManualFrame extends Component {
     }
   }
 
-  get balanceStepSize () {
-    switch(this.props.currency.toLowerCase()) {
-      case 'btc':
-        return 0.00000001;
-      case 'mbtc':
-        return 0.00001;
-      case 'satoshi':
-        return 1;
-      default:
-        return 1;
-    }
+  get stepSize () {
+    return getCurrencyStepSize(this.props.currency.toLowerCase());
   }
 
   render() {
@@ -188,14 +180,14 @@ class ContributionInputManualFrame extends Component {
                       placeholder='ScriptPubKey' width={10}
                       error={scriptPubKeyError}/>
           <Form.Input style={{marginBottom: '1rem'}}
-                      label='Balance (optional)'
+                      label='Balance'
                       name='Balance'
                       value={this.state['Balance']}
                       onChange={this.handleChange}
                       placeholder={`Balance (${this.props.currency})`} width={6}
                       type='number' min={0}
                       error={balanceError}
-                      step={this.balanceStepSize}/>
+                      step={this.stepSize}/>
         </Form.Group>
         <Form.Button content='Add Contribution' disabled={formError}/>
       </Form>
