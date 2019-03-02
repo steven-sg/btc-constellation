@@ -8,6 +8,7 @@ import signingIMG from '../images/signing.png'
 import feeIMG from '../images/fee.png';
 import returnAddressIMG from '../images/return_address.png';
 import transactionLogIMG from '../images/transaction_log.png';
+import transactionStateIMG from '../images/transaction_state.png';
 import publishIMG from '../images/publish_transaction.png';
 
 function ContributionFrameHelp () {
@@ -33,7 +34,7 @@ function ContributionFrameHelp () {
   const page2 = (
     <div>
       <Image src={automaticContributionIMG} size='large'/>
-      <p style={{wordBreak: 'break-word', marginTop: '1rem', width: '100%'}}>
+      <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         To add an input/ inputs using the automatic system, simply enter in your
         bitcoin address and click "Add Contribution". This will pull all the unspent transaction outputs
         that relate to the specified address. The outputs may be pruned if necessary. The address should
@@ -45,21 +46,21 @@ function ContributionFrameHelp () {
   const page3 = (
     <div>
       <Image src={manualContributionIMG} size='large'/>
-      <p style={{wordBreak: 'break-word', marginTop: '1rem', width: '100%'}}>
+      <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         A transaction input requires 3 pieces of information to be defined.
       </p>
       <ul>
         <li>
-          <b>The transaction hash</b><br/>
+          <h5>The transaction hash</h5>
             To identify the transaction where the bitcoins are stored/recieved.
         </li>
         <li>
-          <b>The output index</b><br/>
+          <h5>The output index</h5>
             To identify which output within the specified transaction that the
             bitcoins are stored.
         </li>
         <li>
-          <b>The script</b><br/>
+          <h5>The script</h5>
             This is the authentication measure required to prove the ownership
             of the value. Effectively, it is the "lock" that secures the bitcoins.
         </li>
@@ -70,7 +71,7 @@ function ContributionFrameHelp () {
       </p>
       <p>
         The balance is not required to define the transaction input. However it is
-        necessitated in this software as a convenience measure for the user in later computation.
+        necessitated in this software as a convenience measure for later computation.
       </p>
     </div>
   );
@@ -78,7 +79,7 @@ function ContributionFrameHelp () {
   const page4 = (
     <div>
       <Image src={currencyIMG} size='large'/>
-      <p>
+      <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         The currency format can be changed by using the dropdown next to the balance shown in the picture above.
         This will change the currency displayed as well as the currency for input.
       </p>
@@ -122,7 +123,7 @@ function PaymentFrameHelp () {
   const page1 = (
     <div>
       <Image src={paymentIMG} size='large'/>
-      <p>
+      <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         After defining inputs for our transaction, we can now create the outputs for our expenditures.
       </p>
       <p>
@@ -157,7 +158,7 @@ function SigningFrame () {
   const page1 = (
     <div>
       <Image src={signingIMG} size='large'/>
-      <p>
+      <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         We now need to authenticate the usage of each of our transaction inputs.
       </p>
       <p>
@@ -203,7 +204,7 @@ function FeesFrame () {
   const page2 = (
     <div>
       <Image src={returnAddressIMG} size='large'/>
-      <p>
+      <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         Use the above dropdown to set which return address you wish to use for change,
         or input an unlisted address. Alternatively you can leave the return address unset.
         However, no change will be processed and all unspent inputs will be
@@ -214,7 +215,7 @@ function FeesFrame () {
   const page3 = (
     <div>
       <Image src={feeIMG} size='large'/>
-      <p>
+      <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         The above input shows the total fee as well as the fee per kB. The higher the
         fee rate, the higher the priority of your transaction. This effectively means that
         the more you spend on fees, the quicker your transaction will be processed. However,
@@ -261,19 +262,72 @@ function TransactionFrame () {
   const page1 = (
     <div>
       <Image src={transactionLogIMG} size='large'/>
-      <p>
+      <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         And That's all. You have created the transaction.
       </p>
       <p>
-        This page will show the breakdown of the raw transaction signed by your private keys
-        and the various steps required to create it.
+        The sequence of numbers at the top shows your signed transaction. This contains all the data
+        regarding your transaction. It is also used to create the "transaction hash" as seen
+        previously.
+      </p>
+      <p>
+        The breakdown below show section by section all the steps that was required to create the
+        transaction.
       </p>
     </div>
   );
   const page2 = (
     <div>
-      <Image src={publishIMG} size='large'/>
       <p>
+        <h5>Version Code</h5>
+        This software creates only version 1 transactions.
+      </p>
+      <p>
+        <h5>Input Count</h5>
+        This defines how many inputs are used in the transaction.
+      </p>
+      <p>
+        <h5>Inputs</h5>
+        Each input is then defined.
+      </p>
+      <p>
+        <h5>Output Count</h5>
+        This defines how many outputs are used in the transaction.
+      </p>
+      <p>
+        <h5>Outputs</h5>
+        Each output is then defined.
+      </p>
+      <p>
+        <h5>Locktime</h5>
+        This defines a restriction on when a transaction can be processed based on either
+        block height or unix epoch. This software does not support variable locktime.
+      </p>
+      <p>
+        <h5>Hash Code</h5>
+        TODO
+      </p>
+      <p>
+        <h5>Signing The Inputs</h5>
+        Finally, the inputs are signed based on the constructed raw unsigned transaction.
+        The computed signature then replaces the original input script.
+      </p>
+    </div>
+  );
+  const page3 = (
+    <div>
+      <Image src={transactionStateIMG} size='large'/>
+      <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
+        The section titles can be expanded to show the state of the raw transaction after each computational block.
+        In this view, the transaction state is broken down respectively to show what each substring of the
+        transaction represents.
+      </p>
+    </div>
+  );
+  const page4 = (
+    <div>
+      <Image src={publishIMG} size='large'/>
+      <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         Now that you have created your transaction, click the "Publish" button on the bottom
         right if you wish submit the transaction. Otherwise don't. No transfer of balance will
         be enacted, and you can simply marvel at the transaction that you created.
@@ -286,8 +340,16 @@ function TransactionFrame () {
       page: page1,
     },
     {
-      title: 'Publish Transaction',
+      title: 'Breakdown Sections',
       page: page2,
+    },
+    {
+      title: 'Show Transaction State',
+      page: page3,
+    },
+    {
+      title: 'Publish Transaction',
+      page: page4,
     },
   ];
 }
@@ -333,10 +395,12 @@ class HelpModal extends Component {
              onClose={this.props.handleClose}
              size='tiny'>
         <Modal.Header>{this.state.pages[this.state.activePage - 1].title}</Modal.Header>
-        <Modal.Content>
+        <Modal.Content scrolling>
           <Modal.Description>
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'auto'}}>
-                {this.state.pages[this.state.activePage - 1].page}
+                <div style={{marginBottom:'1rem'}}>
+                  {this.state.pages[this.state.activePage - 1].page}
+                </div>
                 <Pagination
                   activePage={this.state.activePage}
                   prevItem={{ content: <Icon name='angle left' />, icon: true }}

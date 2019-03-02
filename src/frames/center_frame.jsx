@@ -61,7 +61,6 @@ class CenterFrame extends Component {
       payments: [],
       privKeys: {},
       modTx: null,
-      published: false,
       publishMessage: '',
       publishResult: '',
       loading: false,
@@ -76,6 +75,9 @@ class CenterFrame extends Component {
     };
   }
 
+  reset = () => {
+    this.setState(this.defaultState);
+  }
 
   handleOpenModal = () => {
     this.setState({ modalOpen: true });
@@ -378,32 +380,31 @@ class CenterFrame extends Component {
 
   handleNavigation = (direction, showModal) => {
     if (direction === 'back' && this.state.frame === contributionFrameMeta) {
-      this.setState(this.defaultState);
-      return;
-    }
-
-    if(direction === 'next') {
-      const validationResult = this.validate();
-      if (!validationResult.success) {
-        this.setState({
-          error: true,
-          errorMessage: validationResult.error.message,
-          modalOpen: true,
-        });
-        return;
+      this.reset();
+    } else {
+      if(direction === 'next') {
+        const validationResult = this.validate();
+        if (!validationResult.success) {
+          this.setState({
+            error: true,
+            errorMessage: validationResult.error.message,
+            modalOpen: true,
+          });
+          return;
+        }
       }
-    }
 
-    const directionValue = direction === 'next' ? 1: -1;
-    const frame = navLookup[this.state.frame.order + directionValue];
-    // TODO this way of show modal might not be ideal
-    const showhelp = this.state.tutorial || showModal? true: false;
-    const modalOpen = showhelp;
-    this.setState({
-      frame,
-      showhelp,
-      modalOpen,
-    });
+      const directionValue = direction === 'next' ? 1: -1;
+      const frame = navLookup[this.state.frame.order + directionValue];
+      // TODO this way of show modal might not be ideal
+      const showhelp = this.state.tutorial || showModal? true: false;
+      const modalOpen = showhelp;
+      this.setState({
+        frame,
+        showhelp,
+        modalOpen,
+      });
+    }
   }
 
   handleClick = (e, { value }) => {
@@ -433,13 +434,17 @@ class CenterFrame extends Component {
   }
 
   publish = () => {
-    this.setState({loading: true});
-    this.state.modTx.pushtx(this.state.network)
-    .then((response) => {
-      this.setState({loading: false, publish: true, publishMessage: response.data, modalOpen:true, publishResult:'Succeeded'});
-    }).catch((error) => {
-      this.setState({loading: false, publish: true, publishMessage: error.message, modalOpen:true, publishResult:'Failed'});
-    });
+    if (this.state.tutorial) {
+      this.setState({modalOpen:true, publishResult:'Succeeded'});
+    } else {
+      this.setState({loading: true});
+      this.state.modTx.pushtx(this.state.network)
+      .then((response) => {
+        this.setState({loading: false, publishMessage: response.data, modalOpen:true, publishResult:'Succeeded'});
+      }).catch((error) => {
+        this.setState({loading: false, publishMessage: error.message, modalOpen:true, publishResult:'Failed'});
+      });
+    }
   }
 
   get modal () {
@@ -461,7 +466,9 @@ class CenterFrame extends Component {
                        open={this.state.modalOpen}
                        handleOpen={this.handleOpenModal}
                        handleClose={this.handleCloseModal}
-                       result={this.state.publishResult}/>
+                       result={this.state.publishResult}
+                       tutorial={this.state.tutorial}
+                       reset={this.reset}/>
     );
   }
   render() {

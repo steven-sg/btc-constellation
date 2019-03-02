@@ -1,13 +1,25 @@
 import React, { Component } from 'react'
-import { Header, Modal } from 'semantic-ui-react'
+import { Header, Modal, Button } from 'semantic-ui-react'
 import {ObjectInspector} from 'react-inspector';
 
-function SubmissionModal ({open, handleOpen, handleClose, message, result}) {
+function SubmissionModal ({open, handleOpen, handleClose, message, result, tutorial, reset}) {
   const renderContent = () => {
+    if (tutorial) {
+      return (
+        <div>
+          <p style={{wordBreak: 'break-word'}}>
+            Congratulations! You have completed the tutorial.
+            Click the button below to return to the starting page.
+          </p>
+          <Button onClick={reset}>Return To Home</Button>
+        </div>
+      );
+    }
     if (result === 'Succeeded') {
       return (
       <div style={{overflow: 'auto'}}>
         <ObjectInspector data={message} name={'response'} expandLevel={10}/>
+        <Button onClick={reset}>Return To Home</Button>
       </div>
       );
     }
