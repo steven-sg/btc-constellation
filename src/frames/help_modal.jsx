@@ -196,7 +196,7 @@ function FeesFrame () {
       </p>
       <p>
         The fee is calculated as the collected input - the spent output. Therefore
-        anything that you don't spend is used as fww to process your transaction.
+        anything that you don't spend is used as fee to process your transaction.
         To circumvent this and simulate the idea of "change", we send money back to ourself.
       </p>
     </div>

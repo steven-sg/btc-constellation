@@ -330,6 +330,8 @@ class CenterFrame extends Component {
                            balance={this.calculateBalance()}
                            network={this.state.network}
                            tutorial={this.state.tutorial}
+                           currency={this.state.currency}
+                           setCurrency={this.setCurrency}
                            setReturnPayment={this.setReturnPayment}
                            returnPayment={this.state.returnPayment}/>);
       case 'transaction':

@@ -4,48 +4,68 @@ import { Button, Segment, Input, Dropdown, Message, Transition } from 'semantic-
 import AddressList from './fees_address_list';
 import transferIcon from '../icons/bitcoin-transfer.svg';
 import AddressDropdown from './address_dropdown';
-import { fees, transaction, model, utils } from 'easy_btc';
+import { fees, transaction, model, unloggedUtils } from 'easy_btc';
+
+const currencyOptions = [
+  { key: 0, text: 'Satoshi', value: 'Satoshi' },
+  { key: 1, text: 'mBTC', value: 'mBTC' },
+  { key: 2, text: 'BTC', value: 'BTC' },
+];
 
 class FeesFrame extends Component {
   constructor(props) {
     super(props);
-    const totalFee = props.returnPayment ? props.balance - props.returnPayment.amount : props.balance;
+    const totalFeeSatoshi = props.returnPayment ? props.balance - props.returnPayment.amount : props.balance;
+    const totalFee = unloggedUtils.convertCurrencyTo(totalFeeSatoshi, this.props.currency);
     const returnAddress = props.returnPayment ? props.returnPayment.to : '';
-    const state = this.calculateFeeState(totalFee, returnAddress, props.returnPayment);
+    const state = this.calculateFeeState(totalFeeSatoshi, returnAddress, props.returnPayment);
     this.state = {...{
       returnAddress: returnAddress,
       message: `Autmatic fee calculation may not be able to use the exact fee rate requested.
         In such cases it will instead use the closest fee rate possible.`,
+      sizeUnit: this.rateOptions[0].value,
+      totalFee,
     }, ...state};
   }
   
   componentDidUpdate(prevProps, prevState) {
     if (this.state.returnAddress !== prevState.returnAddress) {
-      const state = this.calculateFeeState(this.state.totalFee, this.state.returnAddress);
-      this.setState(state);
+      const rawFee = unloggedUtils.convertCurrencyTo(this.state.totalFee, 'satoshi', this.props.currency);
+      const state = this.calculateFeeState(rawFee, this.state.returnAddress);
+      this.setState({...state, totalFee: unloggedUtils.convertCurrencyTo(rawFee, this.props.currency)});
       this.props.setReturnPayment(state.returnPayment);
+    } if (this.props.currency !== prevProps.currency) {
+      const totalFee = unloggedUtils.convertCurrencyTo(this.state.totalFee, this.props.currency, prevProps.currency);
+      this.setState({totalFee});
     }
-  }
-
-  get currencyOptions () {
-    return [
-      { key: 'satoshi', text: 'satoshi', value: 'satoshi' },
-    ];
   }
 
   get rateOptions () {
     return [
-      { key: 'satoshi/kB', text: 'satoshi/kB', value: 'satoshi/kB' },
+      {
+        key: 'byte',
+        text: `${this.props.currency}/byte`,
+        value: 'byte',
+      },
+      {
+        key: 'kB',
+        text: `${this.props.currency}/kB`,
+        value: 'kB',
+      },
     ];
   }
 
+  changeSizeUnit = (e, {value}) => {
+    this.setState({sizeUnit: value});
+  }
   setReturnAddress = (returnAddress) => {
     this.setState({returnAddress});
   }
 
-  handleChange = (e, {name, value}) => {
-    const state = this.calculateFeeState(value, this.state.returnAddress);
-    this.setState(state);
+  handleChange = (e, {value}) => {
+    const fee = unloggedUtils.convertCurrencyTo(value, 'satoshi', this.props.currency);
+    const state = this.calculateFeeState(fee, this.state.returnAddress);
+    this.setState({...state, totalFee: value});
     this.props.setReturnPayment(state.returnPayment);
   }
 
@@ -59,9 +79,7 @@ class FeesFrame extends Component {
       payments,
       this.props.privKeysArg);
     const feeRate = Math.ceil(fees.getFeeRate(modTx, totalFee));
-    // TODO do something about where returnAddress is stored please
     return {
-      totalFee: totalFee,
       feeRate: feeRate,
       remainingBalance: 0,
       error: false,
@@ -78,7 +96,6 @@ class FeesFrame extends Component {
     const balance = this.props.balance - value;
     if (balance < 0) {
       return {
-        totalFee: value,
         feeRate: '',
         remainingBalance: 'ERROR',
         error: true,
@@ -96,7 +113,6 @@ class FeesFrame extends Component {
     const feeRate = Math.ceil(fees.getFeeRate(modTx, value));
     // TODO the way that this handles returnPayment kinda sucks
     return {
-      totalFee: value,
       feeRate,
       remainingBalance: balance,
       error: false,
@@ -120,14 +136,21 @@ class FeesFrame extends Component {
     }
     return null;
   }
+
+  setCurrency = (e, { value }) => {
+    this.props.setCurrency(value);
+  }
+
   render() {
+    const feeRate = fees.formatSize(unloggedUtils.convertCurrencyTo(this.state.feeRate, this.props.currency), this.state.sizeUnit);
+    const remainingBalance = unloggedUtils.convertCurrencyTo(this.state.remainingBalance, this.props.currency);
     return (
       <div style={{flexGrow: '1', display: 'flex', flexDirection:'column', overflowY:'auto'}}>
         <div style={{flexGrow: '1', display: 'flex', background: lime, margin: '0.5rem 0.5rem 0 0.5rem', borderRadius: '0.5rem 0.5rem 0 0'}}>
           <img style={{flexGrow:1}} src={transferIcon} alt={'transferIcon'}/>
         </div>
         <div style={{display: 'flex', flexDirection:'column', background: lime, margin: '0 0.5rem 0.5rem 0.5rem', borderRadius: '0 0 0.5rem 0.5rem'}}>
-          <div style={{fontSize: '2em', margin: '2rem 2rem 1rem 2rem', textAlign:'center'}}>Remaining Balance: {this.state.remainingBalance} Satoshi</div>
+          <div style={{fontSize: '2em', margin: '2rem 2rem 1rem 2rem', textAlign:'center'}}>Remaining Balance: {`${remainingBalance} ${this.props.currency}`}</div>
           <div style={{display: 'flex', margin:'1rem 2rem 2rem 2rem'}}>
             <AddressDropdown setReturnAddress={this.setReturnAddress} returnAddress={this.state.returnAddress} addresses={this.props.addresses} network={this.props.network} tutorial={this.props.tutorial}/>
           </div>
@@ -139,17 +162,26 @@ class FeesFrame extends Component {
                      value={this.state.totalFee}
                      onChange={this.handleChange}
                      disabled={!this.state.returnAddress}
-                     label={<Dropdown defaultValue={this.currencyOptions[0].value} options={this.currencyOptions} />}
+                     label={
+                      <Dropdown options={currencyOptions}
+                                onChange={this.setCurrency}
+                                value={this.props.currency}
+                                upward
+                      />
+                     }
                      labelPosition='right' type='number' min={0}
                      step={1}/>
             </div>
             <div style={{display: 'flex', justifyContent:'space-evenly'}}>
               <div style={{margin: 'auto 0.5rem', width: '10rem'}}>Fee Rate</div>
               <Input style={{flexGrow:'0.3', margin:'0.5rem', width: '20rem'}}
-                     value={this.state.feeRate}
-                     onChange={this.handleChange}
+                     value={feeRate}
                      disabled
-                     label={<Dropdown defaultValue={this.rateOptions[0].value} options={this.rateOptions} />}
+                     label={
+                      <Dropdown options={this.rateOptions}
+                                onChange={this.changeSizeUnit}
+                                value={this.state.sizeUnit}
+                                upward/>}
                      labelPosition='right' type='number' min={0}
                      step={1}/>
             </div>
