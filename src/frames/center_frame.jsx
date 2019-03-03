@@ -146,9 +146,13 @@ class CenterFrame extends Component {
   }
 
   appendToPayments = (payment) => {
+    if (this.calculateBalance() - payment.amount < 0) {
+      return new OperationResult(false, new Error('Insufficient funds.'));
+    }
     let payments = this.state.payments.slice(0);
     payments.push(payment);
     this.setState({payments});
+    return new OperationResult(true);
   }
 
   appendToPrivateKeys = (address, priv) => {
@@ -232,15 +236,8 @@ class CenterFrame extends Component {
 
   calculateBalance = () => {
     const totalContributionValue = this.contributions.reduce((sum, a) => {
-      if (sum === null || a.output.balance === null) {
-        return null;
-      }
       return sum + Number(a.output.balance);
     }, 0);
-  
-    if (totalContributionValue === null) {
-      return null;
-    }
 
     const totalPaymentValue = this.state.payments.reduce((sum, payment) => {
       return sum + Number(payment.amount);
@@ -303,13 +300,14 @@ class CenterFrame extends Component {
                                    removeTransaction={this.removeTransaction}
                                    contributions={this.contributions} 
                                    currency={this.state.currency}
+                                   balance={this.calculateBalance()}
                                    setCurrency={this.setCurrency}
                                    tutorial={this.state.tutorial}
                                    network={this.state.network}/>);
       case 'payment':
         return (<PaymentFrame callback={this.appendToPayments}
-                              contributions={this.contributions}
                               payments={this.state.payments}
+                              balance={this.calculateBalance()}
                               removePayment={this.removePayment}
                               currency={this.state.currency}
                               setCurrency={this.setCurrency}

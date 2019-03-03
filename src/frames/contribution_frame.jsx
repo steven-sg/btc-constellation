@@ -23,19 +23,13 @@ class ContributionFrame extends Component {
 
   render() {
     const contributions = this.props.contributions;
-    const balance = contributions.reduce((sum, a) => {
-      if (sum === null || a.output.balance === null) {
-        return null;
-      }
-      return sum + Number(a.output.balance);
-    }, 0);
     return (
       <div style={{flexGrow: '1', display: 'flex', flexDirection:'column'}}>
         <div style={{overflowY: 'scroll', flexGrow: 1, display: 'flex', flexDirection: 'column', margin: '0.5rem 0.5rem 0 0'}}>
           <ContributionInputFrame addTransactions={this.props.addTransactions} currency={this.props.currency} contributions={contributions} tutorial={this.props.tutorial} network={this.props.network}/>
           <ContributionList contributions={contributions} callback={this.props.removeTransaction} currency={this.props.currency}/>
         </div>
-        <BalanceSegment balance={balance} currency={this.props.currency} callback={this.props.setCurrency} upward={true}/>
+        <BalanceSegment balance={this.props.balance} currency={this.props.currency} callback={this.props.setCurrency} upward={true}/>
       </div>
     );
   }

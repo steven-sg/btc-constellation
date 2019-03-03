@@ -114,7 +114,10 @@ class paymentInputFrame extends Component {
     }
     const amount = unloggedUtils.convertCurrencyTo(this.state['Amount'], 'satoshi', this.props.currency);
     const payment = new model.transaction.Payment(this.state['Bitcoin Address'], amount);
-    this.props.callback(payment);
+    const result = this.props.callback(payment);
+    if (!result.success) {
+      this.setState({otherError: result.error.message});
+    }
   }
 
   appendError = (errorList, name, error) => {
