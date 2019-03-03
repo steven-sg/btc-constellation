@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Message } from 'semantic-ui-react'
-import { model, unloggedUtils } from 'easy_btc';
+import { model, unloggedUtils, utils } from 'easy_btc';
 import { OperationResult, ValidationError, getCurrencyStepSize } from '../util';
 class ContributionInputManualFrame extends Component {
   constructor (props) {
@@ -45,7 +45,10 @@ class ContributionInputManualFrame extends Component {
     switch (name) {
       case 'Transaction Hash':
         // TODO find transcaction length and acceptable characters (hex?)
-        return new OperationResult(true);
+        if (utils.isHexString(value)) {
+          return new OperationResult(true);
+        }
+        return new OperationResult(false, new Error('The input string is not in hex format.'));
       case 'Output Index':
         return new OperationResult(true);
       case 'ScriptPubKey':

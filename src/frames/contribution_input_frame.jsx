@@ -8,7 +8,7 @@ class ContributionInputFrame extends Component {
 
   render() {
     return (
-      <div style={{margin: '0.5rem'}}>
+      <div style={{margin: '0 0.5rem 0.5rem 0.5rem'}}>
         <Tab menu={{ pointing: true, attached: true}}
              defaultActiveIndex={this.props.tutorial ? 1 : 0}
              panes={[{ menuItem: 'Automatic', render: () => (
