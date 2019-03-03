@@ -109,7 +109,8 @@ class ContributionInputManualFrame extends Component {
   handleChange = (e, { name, value }) => {
     const { success, error } = this.validate(name, value);
     const errorProperty = `${name} error`;
-    const errorList = success? this.removeError(this.state.errorList, name): this.appendError(this.state.errorList, name, error);
+    const errorList = success? this.removeError(this.state.errorList, name)
+                             : this.appendError(this.state.errorList, name, error);
 
     const newState = {
       [name]: value,
@@ -126,8 +127,7 @@ class ContributionInputManualFrame extends Component {
       this.setState({otherError: error.message});
       return
     }
-    const balance = this.state['Balance'] && this.state['Balance'].length ? unloggedUtils.convertCurrencyTo(this.state['Balance'], 'satoshi', this.props.currency)
-                                                                          : null;
+    const balance = unloggedUtils.convertCurrencyTo(this.state['Balance'], 'satoshi', this.props.currency);
     const transactionOutput = [new model.transaction.TransactionOutput(Number(this.state['Output Index']).toString(), this.state['ScriptPubKey'], balance)];
     const tx = new model.transaction.Transaction(this.state['Transaction Hash'], transactionOutput);
     const submissionResult = this.props.addTransactions(tx);

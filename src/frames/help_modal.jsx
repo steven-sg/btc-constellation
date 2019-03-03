@@ -33,7 +33,7 @@ function ContributionFrameHelp () {
 
   const page2 = (
     <div>
-      <Image src={automaticContributionIMG} size='large'/>
+      <Image src={automaticContributionIMG} fluid/>
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         To add an input/ inputs using the automatic system, simply enter in your
         bitcoin address and click "Add Contribution". This will pull all the unspent transaction outputs
@@ -45,7 +45,7 @@ function ContributionFrameHelp () {
 
   const page3 = (
     <div>
-      <Image src={manualContributionIMG} size='large'/>
+      <Image src={manualContributionIMG} fluid/>
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         A transaction input requires 3 pieces of information to be defined.
       </p>
@@ -78,7 +78,7 @@ function ContributionFrameHelp () {
 
   const page4 = (
     <div>
-      <Image src={currencyIMG} size='large'/>
+      <Image src={currencyIMG} fluid/>
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         The currency format can be changed by using the dropdown next to the balance shown in the picture above.
         This will change the currency displayed as well as the currency for input.
@@ -122,7 +122,7 @@ function ContributionFrameHelp () {
 function PaymentFrameHelp () {
   const page1 = (
     <div>
-      <Image src={paymentIMG} size='large'/>
+      <Image src={paymentIMG} fluid/>
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         After defining inputs for our transaction, we can now create the outputs for our expenditures.
       </p>
@@ -157,7 +157,7 @@ function PaymentFrameHelp () {
 function SigningFrame () {
   const page1 = (
     <div>
-      <Image src={signingIMG} size='large'/>
+      <Image src={signingIMG} fluid/>
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         We now need to authenticate the usage of each of our transaction inputs.
       </p>
@@ -203,7 +203,7 @@ function FeesFrame () {
   );
   const page2 = (
     <div>
-      <Image src={returnAddressIMG} size='large'/>
+      <Image src={returnAddressIMG} fluid/>
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         Use the above dropdown to set which return address you wish to use for change,
         or input an unlisted address. Alternatively you can leave the return address unset.
@@ -214,7 +214,7 @@ function FeesFrame () {
   );
   const page3 = (
     <div>
-      <Image src={feeIMG} size='large'/>
+      <Image src={feeIMG} fluid/>
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         The above input shows the total fee as well as the fee per kB. The higher the
         fee rate, the higher the priority of your transaction. This effectively means that
@@ -261,7 +261,7 @@ function FeesFrame () {
 function TransactionFrame () {
   const page1 = (
     <div>
-      <Image src={transactionLogIMG} size='large'/>
+      <Image src={transactionLogIMG} fluid/>
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         And That's all. You have created the transaction.
       </p>
@@ -303,10 +303,10 @@ function TransactionFrame () {
         This defines a restriction on when a transaction can be processed based on either
         block height or unix epoch. This software does not support variable locktime.
       </p>
-      <p>
+      {/* <p>
         <h5>Hash Code</h5>
         TODO
-      </p>
+      </p> */}
       <p>
         <h5>Signing The Inputs</h5>
         Finally, the inputs are signed based on the constructed raw unsigned transaction.
@@ -316,7 +316,7 @@ function TransactionFrame () {
   );
   const page3 = (
     <div>
-      <Image src={transactionStateIMG} size='large'/>
+      <Image src={transactionStateIMG} fluid/>
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         The section titles can be expanded to show the state of the raw transaction after each computational block.
         In this view, the transaction state is broken down respectively to show what each substring of the
@@ -326,7 +326,7 @@ function TransactionFrame () {
   );
   const page4 = (
     <div>
-      <Image src={publishIMG} size='large'/>
+      <Image src={publishIMG} fluid/>
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         Now that you have created your transaction, click the "Publish" button on the bottom
         right if you wish submit the transaction. Otherwise don't. No transfer of balance will
