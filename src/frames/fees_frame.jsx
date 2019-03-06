@@ -12,6 +12,19 @@ const currencyOptions = [
   { key: 2, text: 'BTC', value: 'BTC' },
 ];
 
+const sizeOptions = [
+  {
+    key: 'byte',
+    text: 'bytes',
+    value: 'byte',
+  },
+  {
+    key: 'kB',
+    text: 'kB',
+    value: 'kB',
+  },
+];
+
 class FeesFrame extends Component {
   constructor(props) {
     super(props);
@@ -71,8 +84,10 @@ class FeesFrame extends Component {
 
   calculateDefaultAddressState = (totalFee, presetPayment) => {
     let payments = this.props.payments;
+    let balance = 0;
     if (presetPayment) {
       payments = [...payments, presetPayment]
+      balance = presetPayment.amount;
     }
     const modTx = transaction.createSignedTransaction(
       this.props.contributions,
@@ -80,8 +95,9 @@ class FeesFrame extends Component {
       this.props.privKeysArg);
     const feeRate = Math.ceil(fees.getFeeRate(modTx, totalFee));
     return {
+      size: modTx.getSize(),
       feeRate: feeRate,
-      remainingBalance: 0,
+      remainingBalance: balance,
       error: false,
       errorMessage: '',
       triggerAnimation: false,
@@ -96,6 +112,7 @@ class FeesFrame extends Component {
     const balance = this.props.balance - value;
     if (balance < 0) {
       return {
+        size: 0,
         feeRate: '',
         remainingBalance: 'ERROR',
         error: true,
@@ -113,6 +130,7 @@ class FeesFrame extends Component {
     const feeRate = Math.ceil(fees.getFeeRate(modTx, value));
     // TODO the way that this handles returnPayment kinda sucks
     return {
+      size: modTx.getSize(),
       feeRate,
       remainingBalance: balance,
       error: false,
@@ -144,6 +162,7 @@ class FeesFrame extends Component {
   render() {
     const feeRate = fees.formatSize(unloggedUtils.convertCurrencyTo(this.state.feeRate, this.props.currency), this.state.sizeUnit);
     const remainingBalance = unloggedUtils.convertCurrencyTo(this.state.remainingBalance, this.props.currency);
+    const size = fees.formatSize(this.state.size, this.state.sizeUnit);
     return (
       <div style={{flexGrow: '1', display: 'flex', flexDirection:'column', overflowY:'auto'}}>
         <div style={{flexGrow: '1', display: 'flex', background: lime, margin: '0.5rem 0.5rem 0 0.5rem', borderRadius: '0.5rem 0.5rem 0 0'}}>
@@ -182,8 +201,19 @@ class FeesFrame extends Component {
                                 onChange={this.changeSizeUnit}
                                 value={this.state.sizeUnit}
                                 upward/>}
-                     labelPosition='right' type='number' min={0}
-                     step={1}/>
+                     labelPosition='right' type='number' min={0}/>
+            </div>
+            <div style={{display: 'flex', justifyContent:'space-evenly'}}>
+              <div style={{margin: 'auto 0.5rem', width: '10rem'}}>Size</div>
+              <Input style={{flexGrow:'0.3', margin:'0.5rem', width: '20rem'}}
+                     value={size}
+                     disabled
+                     label={
+                      <Dropdown options={sizeOptions}
+                                onChange={this.changeSizeUnit}
+                                value={this.state.sizeUnit}
+                                upward/>}
+                     labelPosition='right' type='number' min={0}/>
             </div>
           </div>
         </div>

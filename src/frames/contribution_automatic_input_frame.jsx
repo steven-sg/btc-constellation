@@ -93,16 +93,20 @@ class AutomaticContributionInputFrame extends Component {
     } else {
       services.pullUnspentTransactions(this.state["Bitcoin Address"], this.props.network)
       .then((response) => {
-        const transaction = response.data[0];
-        const outputs = transaction.outputs;
-        const splitTransactions = Object.keys(outputs).map(
-          (key) => {
-            const transactionOutput = [new model.transaction.TransactionOutput(
-              outputs[key].outputIndex.toString(), outputs[key].scriptPubKey, outputs[key].balance)];
-            const tx = new model.transaction.Transaction(transaction.txHash, transactionOutput);
-            return tx;
-          }
-        );
+        const transaction = response.data;
+        let splitTransactions = [];
+        for (let index = 0; index < transaction.length; index++) {
+          const outputs = transaction[index].outputs;
+          const transactions = Object.keys(outputs).map(
+            (key) => {
+              const transactionOutput = [new model.transaction.TransactionOutput(
+                outputs[key].outputIndex.toString(), outputs[key].scriptPubKey, outputs[key].balance)];
+              const tx = new model.transaction.Transaction(transaction[index].txHash, transactionOutput);
+              return tx;
+            }
+          );
+          splitTransactions = splitTransactions.concat(transactions);
+        }
         const submissionResult = this.props.addTransactions(splitTransactions);
         if (!submissionResult.success) {
           this.setState({otherError: submissionResult.error.message});

@@ -393,27 +393,31 @@ class HelpModal extends Component {
       <Modal open={this.props.open}
              onOpen={this.props.handleOpen}
              onClose={this.props.handleClose}
-             size='tiny'>
+             size='tiny'
+             closeIcon>
         <Modal.Header>{this.state.pages[this.state.activePage - 1].title}</Modal.Header>
         <Modal.Content scrolling>
           <Modal.Description>
             <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'auto'}}>
-                <div style={{marginBottom:'1rem'}}>
-                  {this.state.pages[this.state.activePage - 1].page}
-                </div>
-                <Pagination
-                  activePage={this.state.activePage}
-                  prevItem={{ content: <Icon name='angle left' />, icon: true }}
-                  nextItem={{ content: <Icon name='angle right' />, icon: true }}
-                  firstItem={null}
-                  lastItem={null}
-                  pointing
-                  secondary
-                  onPageChange={this.handlePaginationChange}
-                  totalPages={this.state.totalPages}/>
+              <div style={{marginBottom:'1rem'}}>
+                {this.state.pages[this.state.activePage - 1].page}
               </div>
+            </div>
           </Modal.Description>
         </Modal.Content>
+        <Modal.Actions>
+          <div style={{display:'flex', justifyContent:'center'}}>
+            <Pagination activePage={this.state.activePage}
+              prevItem={{ content: <Icon name='angle left' />, icon: true }}
+              nextItem={{ content: <Icon name='angle right' />, icon: true }}
+              firstItem={null}
+              lastItem={null}
+              pointing
+              secondary
+              onPageChange={this.handlePaginationChange}
+              totalPages={this.state.totalPages}/>
+          </div>
+        </Modal.Actions>
       </Modal>
     );
   }

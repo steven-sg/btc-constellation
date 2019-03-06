@@ -11,16 +11,14 @@ function SubmissionModal ({open, handleOpen, handleClose, message, result, tutor
             Congratulations! You have completed the tutorial.
             Click the button below to return to the starting page.
           </p>
-          <Button onClick={reset}>Return To Home</Button>
         </div>
       );
     }
     if (result === 'Succeeded') {
       return (
-      <div style={{overflow: 'auto'}}>
-        <ObjectInspector data={message} name={'response'} expandLevel={10}/>
-        <Button onClick={reset}>Return To Home</Button>
-      </div>
+        <div style={{overflow: 'auto'}}>
+          <ObjectInspector data={message} name={'response'} expandLevel={10}/>
+        </div>
       );
     }
     return (<p style={{wordBreak: 'break-word'}}>{message}</p>);
@@ -28,14 +26,18 @@ function SubmissionModal ({open, handleOpen, handleClose, message, result, tutor
   return (
     <Modal open={open}
            onOpen={handleOpen}
-           onClose={handleClose}>
+           onClose={handleClose}
+           closeIcon>
       <Modal.Header>Transaction Submitted</Modal.Header>
-      <Modal.Content>
+      <Modal.Content scrolling>
         <Modal.Description>
           <Header>Submission {result}</Header>
           {renderContent()}
         </Modal.Description>
       </Modal.Content>
+      <Modal.Actions>
+          <Button onClick={reset}>Return To Home</Button>
+        </Modal.Actions>
     </Modal>
   );
 }

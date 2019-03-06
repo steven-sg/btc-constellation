@@ -38,15 +38,15 @@ class paymentInputFrame extends Component {
 
         try {
           const addressType = utils.getAddressFormat(value).toUpperCase();
-          if (addressType !== 'P2PKH') {
+          if (addressType !== 'P2PKH' && addressType !== 'P2SH') {
             return new OperationResult(false, new Error(
-              `Address type ${addressType} is not supported. Please supply a P2PKH address.`
+              `Address type ${addressType} is not supported. Please supply a P2PKH/P2SH address.`
             ));
           }
         } catch (error) {
           if (error instanceof utils.InvalidInputFormat) {
             return new OperationResult(false, new Error(
-              `Unrecognised address format. Please supply a P2PKH address.`
+              `Unrecognised address format. Please supply a P2PKH/P2SH address.`
             ));
           }
           return new OperationResult(false, new Error(
@@ -59,14 +59,14 @@ class paymentInputFrame extends Component {
           const expectedNetwork = this.props.network.toUpperCase();
           if (network !== expectedNetwork) {
             return new OperationResult(false, new Error(
-              `This address belongs to an compatible network: ${network}.
+              `This address belongs to an incompatible network: ${network}.
               Please use an address from the ${expectedNetwork} or create a new ${network} transaction.`
             ));
           }
         } catch (error) {
           if (error instanceof utils.InvalidInputFormat) {
             return new OperationResult(false, new Error(
-              `Unrecognised address network. Please supply a P2PKH address.`
+              `Unrecognised address network. Please supply a P2PKH/P2SH address.`
             ));
           }
           return new OperationResult(false, new Error(

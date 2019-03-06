@@ -58,14 +58,14 @@ class SigningForm extends Component {
     try {
       if (priv) {
         const keyFormat = utils.getPrivateKeyFormat(priv);
-        if (keyFormat !== 'wif_compressed') {
+        if (keyFormat !== 'wif_compressed' && keyFormat !== 'wif') {
           return new OperationResult(false, new Error(`Invalid key format '${keyFormat.toUpperCase()}'.
-            Please encode your key as compressed WIF as it the only supported format at this time.`));
+            Please encode your key as WIF.`));
         }
       }
     } catch (error) {
       if (error instanceof utils.InvalidInputFormat) {
-        return new OperationResult(false, new Error('Invalid key format. Please ensure that your key is encoded as compressed WIF.'));
+        return new OperationResult(false, new Error('Invalid key format. Please ensure that your key is encoded as WIF.'));
       }
       return new OperationResult(false, new Error('An unexpected error has occured.'));
     }
