@@ -1,23 +1,23 @@
 self.__precacheManifest = [
   {
-    "revision": "1ee11ec208cf25c53bb3",
-    "url": "/btc-constellation/static/css/main.47d8c7a3.chunk.css"
+    "revision": "ba38b44bf5e6a9efd131",
+    "url": "/btc-constellation/static/css/main.d9ad7391.chunk.css"
   },
   {
-    "revision": "1ee11ec208cf25c53bb3",
-    "url": "/btc-constellation/static/js/main.1ee11ec2.chunk.js"
+    "revision": "ba38b44bf5e6a9efd131",
+    "url": "/btc-constellation/static/js/main.ba38b44b.chunk.js"
   },
   {
     "revision": "f35f76a8fc1b8b423863",
     "url": "/btc-constellation/static/js/runtime~main.f35f76a8.js"
   },
   {
-    "revision": "b01c242e1de29f7645c4",
+    "revision": "88f11bedf6a549035662",
     "url": "/btc-constellation/static/css/2.4b5db4cd.chunk.css"
   },
   {
-    "revision": "b01c242e1de29f7645c4",
-    "url": "/btc-constellation/static/js/2.b01c242e.chunk.js"
+    "revision": "88f11bedf6a549035662",
+    "url": "/btc-constellation/static/js/2.88f11bed.chunk.js"
   },
   {
     "revision": "454eb9464f8d5bc35a4cf46f91a9996b",
@@ -64,16 +64,20 @@ self.__precacheManifest = [
     "url": "/btc-constellation/static/media/transaction_log.29199bf6.png"
   },
   {
+    "revision": "ac8b438bec60770e8f494ba3f202560e",
+    "url": "/btc-constellation/static/media/transaction_state.ac8b438b.png"
+  },
+  {
     "revision": "ab1658e8df22cff4c43b0dd716343da4",
     "url": "/btc-constellation/static/media/publish_transaction.ab1658e8.png"
   },
   {
-    "revision": "ef60a4f6c25ef7f39f2d25a748dbecfe",
-    "url": "/btc-constellation/static/media/outline-icons.ef60a4f6.woff"
-  },
-  {
     "revision": "cd6c777f1945164224dee082abaea03a",
     "url": "/btc-constellation/static/media/outline-icons.cd6c777f.woff2"
+  },
+  {
+    "revision": "ef60a4f6c25ef7f39f2d25a748dbecfe",
+    "url": "/btc-constellation/static/media/outline-icons.ef60a4f6.woff"
   },
   {
     "revision": "701ae6abd4719e9c2ada3535a497b341",
@@ -132,7 +136,7 @@ self.__precacheManifest = [
     "url": "/btc-constellation/static/media/brand-icons.a1a749e8.svg"
   },
   {
-    "revision": "1c9e1ff582065b185420df0318c49c37",
+    "revision": "4e57a9605b69b2db20471b705de868f3",
     "url": "/btc-constellation/index.html"
   }
 ];
