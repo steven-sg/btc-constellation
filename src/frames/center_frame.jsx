@@ -195,12 +195,6 @@ class CenterFrame extends Component {
     return this.getAddressesFromPayments(addresses);
   }
 
-  getP2PKHAddresses = () => {
-    return this.getAllAddresses().filter((address) => {
-      return utils.getAddressFormat(address).toUpperCase() === 'P2PKH';
-    });
-  }
-
   setCurrency = (currency) => {
     this.setState({currency});
   }
@@ -327,7 +321,7 @@ class CenterFrame extends Component {
                              privKeys={this.state.privKeys}
                              tutorial={this.state.tutorial}/>;
       case 'fees':
-        return (<FeesFrame addresses={this.getP2PKHAddresses()}
+        return (<FeesFrame addresses={this.getAllAddresses()}
                            contributions={this.contributions}
                            payments={this.state.payments}
                            privKeysArg={this.getPrivKeyArgs()}

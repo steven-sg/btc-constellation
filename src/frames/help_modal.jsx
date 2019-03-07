@@ -37,8 +37,8 @@ function ContributionFrameHelp () {
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
         To add an input/ inputs using the automatic system, simply enter in your
         bitcoin address and click "Add Contribution". This will pull all the unspent transaction outputs
-        that relate to the specified address. The outputs may be pruned if necessary. The address should
-        exist in the network that you selected on the first page.
+        that relate to the specified address. The inputs may be pruned as necessary. The address should
+        exist in the network that was selected on the first page.
       </p>
     </div>
   );
@@ -67,7 +67,7 @@ function ContributionFrameHelp () {
       </ul>
       <p>
         To add an input using the manual system, provide the above stated details and click "Add Contribution".
-        Once again, the transaction should belong to the network you selected on the first page.
+        Once again, the transaction should belong to the network selected on the first page.
       </p>
       <p>
         The balance is not required to define the transaction input. However it is
@@ -128,8 +128,8 @@ function PaymentFrameHelp () {
       </p>
       <p>
         To add an output, simply enter in the bitcoin address of your recipient, the amount you wish to send
-        and click "Add Payment". Similar to the inputs, ensure that the recipient address on the same network
-        as your inputs.
+        and click "Add Payment". Similar to the inputs, ensure that the recipient address exists on the
+        selected network.
       </p>
     </div>
   );
@@ -159,7 +159,8 @@ function SigningFrame () {
     <div>
       <Image src={signingIMG} fluid/>
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
-        We now need to authenticate the usage of each of our transaction inputs.
+        We now need to authenticate the usage of each of our transaction inputs, i.e prove that
+        we own the funds that we are trying to access.
       </p>
       <p>
         For each transaction input, enter the private key for each bitcoin address that corresponds.
@@ -195,9 +196,9 @@ function FeesFrame () {
         The last step is to set the amount of change that you wish to recieve.
       </p>
       <p>
-        The fee is calculated as the collected input - the spent output. Therefore
+        The fee is calculated as the collected input minus the spent output. Therefore
         anything that you don't spend is used as fee to process your transaction.
-        To circumvent this and simulate the idea of "change", we send money back to ourself.
+        We circumvent this and simulate the idea of "change", by sending money back to ourself.
       </p>
     </div>
   );
@@ -216,9 +217,8 @@ function FeesFrame () {
     <div>
       <Image src={feeIMG} fluid/>
       <p style={{wordBreak: 'break-word', marginTop: '1rem'}}>
-        The above input shows the total fee as well as the fee per kB. The higher the
-        fee rate, the higher the priority of your transaction. This effectively means that
-        the more you spend on fees, the quicker your transaction will be processed. However,
+        Here we can see the total fee, the fee rate and the transaction size. The higher the
+        fee rate, the quicker your transaction will be processed. However,
         conversely this means that if your fee rate is too low, then your transaction may
         end up <b>never</b> being processed.
       </p>
@@ -266,7 +266,7 @@ function TransactionFrame () {
         And That's all. You have created the transaction.
       </p>
       <p>
-        The sequence of numbers at the top shows your signed transaction. This contains all the data
+        The sequence of numbers at the top shows your raw signed transaction. This contains all the data
         regarding your transaction. It is also used to create the "transaction hash" as seen
         previously.
       </p>
@@ -310,7 +310,10 @@ function TransactionFrame () {
       <p>
         <h5>Signing The Inputs</h5>
         Finally, the inputs are signed based on the constructed raw unsigned transaction.
-        The computed signature then replaces the original input script.
+        The raw unsigned transaction refers to the transaction that has undergone all the
+        previous steps but has yet to prove ownership of the funds it is trying to access.
+        To sign the transaction, we compute the necessary signatures and then replaces the
+        original input scripts with their respective signature.
       </p>
     </div>
   );
