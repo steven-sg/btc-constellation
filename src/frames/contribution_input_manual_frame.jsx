@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Message } from 'semantic-ui-react'
-import { model, unloggedUtils, utils } from 'easy_btc';
+import { model, unloggedUtils, utils, scripts } from 'easy_btc';
 import { OperationResult, ValidationError, getCurrencyStepSize } from '../util';
 class ContributionInputManualFrame extends Component {
   constructor (props) {
@@ -53,7 +53,12 @@ class ContributionInputManualFrame extends Component {
         return new OperationResult(true);
       case 'ScriptPubKey':
         try {
-          value.length && unloggedUtils.getScriptFormat(value);
+          if (value.length) {
+            const format = scripts.getScriptFormat(value);
+            if (format !== 'pay-to-pubkey-hash') {
+              return new OperationResult(false, new Error(`Unsupported script format ${format}.`));
+            }
+          }
           return new OperationResult(true);
         } catch (error) {
           // TODO add generic error

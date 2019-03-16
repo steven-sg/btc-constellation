@@ -64,7 +64,7 @@ class SigningForm extends Component {
         }
       }
     } catch (error) {
-      if (error instanceof utils.InvalidInputFormat) {
+      if (error instanceof utils.InvalidInputError) {
         return new OperationResult(false, new Error('Invalid key format. Please ensure that your key is encoded as WIF.'));
       }
       return new OperationResult(false, new Error('An unexpected error has occured.'));

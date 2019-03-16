@@ -37,7 +37,7 @@ class AddressDropdown extends Component {
       }
     } catch (error) {
 
-      if (error instanceof utils.InvalidInputFormat) {
+      if (error instanceof utils.InvalidInputError) {
         return new OperationResult(false, new Error(
           `Unrecognised address format. Please supply a P2PKH address.`
         ));
@@ -58,7 +58,7 @@ class AddressDropdown extends Component {
         ));
       }
     } catch (error) {
-      if (error instanceof utils.InvalidInputFormat) {
+      if (error instanceof utils.InvalidInputError) {
         return new OperationResult(false, new Error(
           `Unrecognised address network. Please supply a P2PKH address.`
         ));
