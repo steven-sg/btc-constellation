@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Segment, Header } from 'semantic-ui-react'
-import { utils, dataStructures } from 'easy_btc';
+import { utils, models } from 'easy_btc';
 import { PascalCase } from '../util';
 import { GenericLog } from './segments';
 import Snapshot from './transaction_snapshot';
@@ -27,7 +27,7 @@ class ComplexSegmentGroup extends Component {
   createSegmentGroup = (title, logArray, key = 0) => {
     // Pulls transaction state from the append transaction log
     let finalLog = logArray[logArray.length-1];
-    if (finalLog instanceof dataStructures.OrderedDict) {
+    if (finalLog instanceof models.OrderedDict) {
       const keys = finalLog.getKeys();
       finalLog = finalLog.getValue(keys[keys.length-1]);
       finalLog = finalLog[finalLog.length-1]
@@ -47,7 +47,7 @@ class ComplexSegmentGroup extends Component {
       const tailItems = [...item].splice(1);
       const firstSegment = this.createSegment(firstItem, key, index + 1);
       return [firstSegment].concat(this.createSubSegments(tailItems, key, index + 1));
-    } else if (item instanceof dataStructures.OrderedDict) {
+    } else if (item instanceof models.OrderedDict) {
       const items = item.getKeys().map((key, subIndex) => {
         return [
           <Segment inverted color='teal' secondary>{key}</Segment>,

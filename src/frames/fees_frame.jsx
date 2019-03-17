@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { lightLime, lime, darkLime } from '../style/colors';
-import { Button, Segment, Input, Dropdown, Message, Transition } from 'semantic-ui-react'
+import { lightLime, lime } from '../style/colors';
+import { Input, Dropdown, Message, Transition } from 'semantic-ui-react'
 import AddressList from './fees_address_list';
 import transferIcon from '../icons/bitcoin-transfer.svg';
 import AddressDropdown from './address_dropdown';
-import { fees, transaction, model, unloggedUtils } from 'easy_btc';
+import { fees, transaction, models, unloggedUtils } from 'easy_btc';
 
 const currencyOptions = [
   { key: 0, text: 'Satoshi', value: 'Satoshi' },
@@ -121,7 +121,7 @@ class FeesFrame extends Component {
         returnPayment: null,
       };
     }
-    const newPayment = new model.transaction.Payment(returnAddress, balance);
+    const newPayment = new models.Payment(returnAddress, balance);
     const payments = [...this.props.payments, newPayment];
     const modTx = transaction.createSignedTransaction(
       this.props.contributions,

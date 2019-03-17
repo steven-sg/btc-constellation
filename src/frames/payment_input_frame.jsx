@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Card, Form, Message } from 'semantic-ui-react'
-import { model, unloggedUtils, utils } from 'easy_btc';
+import { models, unloggedUtils, utils } from 'easy_btc';
 import { OperationResult, ValidationError, getCurrencyStepSize } from '../util';
 
 class paymentInputFrame extends Component {
@@ -113,7 +113,7 @@ class paymentInputFrame extends Component {
       return
     }
     const amount = unloggedUtils.convertCurrencyTo(this.state['Amount'], 'satoshi', this.props.currency);
-    const payment = new model.transaction.Payment(this.state['Bitcoin Address'], amount);
+    const payment = new models.Payment(this.state['Bitcoin Address'], amount);
     const result = this.props.callback(payment);
     if (!result.success) {
       this.setState({otherError: result.error.message});

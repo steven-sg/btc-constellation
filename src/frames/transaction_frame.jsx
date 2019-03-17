@@ -1,9 +1,8 @@
 import React, { Component }from 'react';
 import ComplexSegmentGroup from './segment';
-import { Segment } from 'semantic-ui-react'
 // import TransactionTable from '../decode';
 import TxHashSegment from './transaction_hash_segment';
-import { utils, transaction, model } from 'easy_btc';
+import { utils } from 'easy_btc';
 class TxBreakdown extends Component {
   constructor(props) {
     super(props);

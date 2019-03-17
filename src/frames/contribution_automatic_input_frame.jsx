@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Message } from 'semantic-ui-react'
-import { model, utils, services } from 'easy_btc';
+import { models, utils, services } from 'easy_btc';
 import { OperationResult, ValidationError } from '../util';
 
 class AutomaticContributionInputFrame extends Component {
@@ -99,9 +99,9 @@ class AutomaticContributionInputFrame extends Component {
           const outputs = transaction[index].outputs;
           const transactions = Object.keys(outputs).map(
             (key) => {
-              const transactionOutput = [new model.transaction.TransactionOutput(
+              const transactionOutput = [new models.TransactionOutput(
                 outputs[key].outputIndex.toString(), outputs[key].scriptPubKey, outputs[key].balance)];
-              const tx = new model.transaction.Transaction(transaction[index].txHash, transactionOutput);
+              const tx = new models.Transaction(transaction[index].txHash, transactionOutput);
               return tx;
             }
           );
