@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Card, Form, Message } from 'semantic-ui-react'
-import { models, unloggedUtils, utils } from 'easy_btc';
+import { models, currency, utils } from 'easy_btc';
 import { OperationResult, ValidationError, getCurrencyStepSize } from '../util';
 
 class paymentInputFrame extends Component {
@@ -44,7 +44,7 @@ class paymentInputFrame extends Component {
             ));
           }
         } catch (error) {
-          if (error instanceof utils.InvalidInputError) {
+          if (error instanceof models.InvalidInputError) {
             return new OperationResult(false, new Error(
               `Unrecognised address format. Please supply a P2PKH/P2SH address.`
             ));
@@ -64,7 +64,7 @@ class paymentInputFrame extends Component {
             ));
           }
         } catch (error) {
-          if (error instanceof utils.InvalidInputError) {
+          if (error instanceof models.InvalidInputError) {
             return new OperationResult(false, new Error(
               `Unrecognised address network. Please supply a P2PKH/P2SH address.`
             ));
@@ -112,7 +112,7 @@ class paymentInputFrame extends Component {
       this.setState({otherError: error.message});
       return
     }
-    const amount = unloggedUtils.convertCurrencyTo(this.state['Amount'], 'satoshi', this.props.currency);
+    const amount = currency.convertCurrencyTo(this.state['Amount'], 'satoshi', this.props.currency);
     const payment = new models.Payment(this.state['Bitcoin Address'], amount);
     const result = this.props.callback(payment);
     if (!result.success) {

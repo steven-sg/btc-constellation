@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Menu, Dropdown } from 'semantic-ui-react'
-import { unloggedUtils } from 'easy_btc';
+import { currency } from 'easy_btc';
 
 const options = [
   { key: 0, text: 'Satoshi', value: 'Satoshi' },
@@ -20,7 +20,7 @@ class BalanceSegment extends Component {
 
   render() {
     const { currency } = this.props;
-    const balance = unloggedUtils.convertCurrencyTo(this.props.balance, currency);
+    const balance = currency.convertCurrencyTo(this.props.balance, currency);
     return (
       <Menu style={{margin: '0.5rem'}}>
         <Menu.Menu position='right'>

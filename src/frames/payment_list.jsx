@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Segment, Button } from 'semantic-ui-react'
 import ReactResizeDetector from 'react-resize-detector';
-import { unloggedUtils } from 'easy_btc';
+import { currency } from 'easy_btc';
 
 class PaymentList extends Component {
   constructor(props) {
@@ -14,7 +14,7 @@ class PaymentList extends Component {
   }
 
   convertAmount = (amount) => {
-    return unloggedUtils.convertCurrencyTo(amount, this.props.currency);
+    return currency.convertCurrencyTo(amount, this.props.currency);
   }
 
   renderSegments = () => {

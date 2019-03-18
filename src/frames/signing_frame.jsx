@@ -3,7 +3,7 @@ import { Form, Transition, Message } from 'semantic-ui-react'
 import lockIcon from '../icons/lock.svg';
 import { darkPink, lightPink } from '../style/colors';
 import unlockIcon from '../icons/unlock.svg';
-import { utils } from 'easy_btc';
+import { utils, models } from 'easy_btc';
 import { OperationResult } from '../util';
 class SigningForm extends Component {
   constructor (props) {
@@ -64,7 +64,7 @@ class SigningForm extends Component {
         }
       }
     } catch (error) {
-      if (error instanceof utils.InvalidInputError) {
+      if (error instanceof models.InvalidInputError) {
         return new OperationResult(false, new Error('Invalid key format. Please ensure that your key is encoded as WIF.'));
       }
       return new OperationResult(false, new Error('An unexpected error has occured.'));

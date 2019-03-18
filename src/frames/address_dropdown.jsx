@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Dropdown, Message, Transition } from 'semantic-ui-react'
-import { utils } from 'easy_btc';
+import { utils, models } from 'easy_btc';
 import { OperationResult } from '../util';
 
 class AddressDropdown extends Component {
@@ -37,7 +37,7 @@ class AddressDropdown extends Component {
       }
     } catch (error) {
 
-      if (error instanceof utils.InvalidInputError) {
+      if (error instanceof models.InvalidInputError) {
         return new OperationResult(false, new Error(
           `Unrecognised address format. Please supply a P2PKH address.`
         ));
@@ -58,7 +58,7 @@ class AddressDropdown extends Component {
         ));
       }
     } catch (error) {
-      if (error instanceof utils.InvalidInputError) {
+      if (error instanceof models.InvalidInputError) {
         return new OperationResult(false, new Error(
           `Unrecognised address network. Please supply a P2PKH address.`
         ));

@@ -4,7 +4,7 @@ import { Input, Dropdown, Message, Transition } from 'semantic-ui-react'
 import AddressList from './fees_address_list';
 import transferIcon from '../icons/bitcoin-transfer.svg';
 import AddressDropdown from './address_dropdown';
-import { fees, transaction, models, unloggedUtils } from 'easy_btc';
+import { fees, transaction, models, currency } from 'easy_btc';
 
 const currencyOptions = [
   { key: 0, text: 'Satoshi', value: 'Satoshi' },
@@ -29,7 +29,7 @@ class FeesFrame extends Component {
   constructor(props) {
     super(props);
     const totalFeeSatoshi = props.returnPayment ? props.balance - props.returnPayment.amount : props.balance;
-    const totalFee = unloggedUtils.convertCurrencyTo(totalFeeSatoshi, this.props.currency);
+    const totalFee = currency.convertCurrencyTo(totalFeeSatoshi, this.props.currency);
     const returnAddress = props.returnPayment ? props.returnPayment.to : '';
     const state = this.calculateFeeState(totalFeeSatoshi, returnAddress, props.returnPayment);
     this.state = {...{
@@ -43,12 +43,12 @@ class FeesFrame extends Component {
   
   componentDidUpdate(prevProps, prevState) {
     if (this.state.returnAddress !== prevState.returnAddress) {
-      const rawFee = unloggedUtils.convertCurrencyTo(this.state.totalFee, 'satoshi', this.props.currency);
+      const rawFee = currency.convertCurrencyTo(this.state.totalFee, 'satoshi', this.props.currency);
       const state = this.calculateFeeState(rawFee, this.state.returnAddress);
-      this.setState({...state, totalFee: unloggedUtils.convertCurrencyTo(rawFee, this.props.currency)});
+      this.setState({...state, totalFee: currency.convertCurrencyTo(rawFee, this.props.currency)});
       this.props.setReturnPayment(state.returnPayment);
     } if (this.props.currency !== prevProps.currency) {
-      const totalFee = unloggedUtils.convertCurrencyTo(this.state.totalFee, this.props.currency, prevProps.currency);
+      const totalFee = currency.convertCurrencyTo(this.state.totalFee, this.props.currency, prevProps.currency);
       this.setState({totalFee});
     }
   }
@@ -76,7 +76,7 @@ class FeesFrame extends Component {
   }
 
   handleChange = (e, {value}) => {
-    const fee = unloggedUtils.convertCurrencyTo(value, 'satoshi', this.props.currency);
+    const fee = currency.convertCurrencyTo(value, 'satoshi', this.props.currency);
     const state = this.calculateFeeState(fee, this.state.returnAddress);
     this.setState({...state, totalFee: value});
     this.props.setReturnPayment(state.returnPayment);
@@ -160,8 +160,8 @@ class FeesFrame extends Component {
   }
 
   render() {
-    const feeRate = fees.formatSize(unloggedUtils.convertCurrencyTo(this.state.feeRate, this.props.currency), this.state.sizeUnit);
-    const remainingBalance = unloggedUtils.convertCurrencyTo(this.state.remainingBalance, this.props.currency);
+    const feeRate = fees.formatSize(currency.convertCurrencyTo(this.state.feeRate, this.props.currency), this.state.sizeUnit);
+    const remainingBalance = currency.convertCurrencyTo(this.state.remainingBalance, this.props.currency);
     const size = fees.formatSize(this.state.size, this.state.sizeUnit);
     return (
       <div style={{flexGrow: '1', display: 'flex', flexDirection:'column', overflowY:'auto'}}>

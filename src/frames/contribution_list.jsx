@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Segment, Button } from 'semantic-ui-react'
 import ReactResizeDetector from 'react-resize-detector';
-import { unloggedUtils } from 'easy_btc';
+import { currency } from 'easy_btc';
 
 class ContributionList extends Component {
   constructor(props) {
@@ -14,7 +14,7 @@ class ContributionList extends Component {
   }
 
   convertbalance = (balance) => {
-    return unloggedUtils.convertCurrencyTo(balance, this.props.currency);
+    return currency.convertCurrencyTo(balance, this.props.currency);
   }
 
   renderSegments = () => {
