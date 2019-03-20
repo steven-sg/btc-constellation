@@ -1,6 +1,5 @@
 import React, { Component }from 'react';
 import ComplexSegmentGroup from './segment';
-// import TransactionTable from '../decode';
 import TxHashSegment from './transaction_hash_segment';
 import { utils } from 'easy_btc';
 class TxBreakdown extends Component {
@@ -15,7 +14,6 @@ class TxBreakdown extends Component {
   render() {
     return (
       <div style={{width:'100%', flexGrow: '1', display: 'flex', flexDirection:'column'}}>
-        {/* <TransactionTable tx={this.state.tx.transactionDict} /> */}
         <div style={{margin:'0.5rem'}}>
           {/* <Segment style={{overflow: 'auto', fontSize: '2.5em', padding: '1.5rem'}}>
           { this.state.txhash }

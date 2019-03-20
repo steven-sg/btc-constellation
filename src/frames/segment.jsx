@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
-import { Segment, Header } from 'semantic-ui-react'
+import { Segment } from 'semantic-ui-react'
 import { utils, models } from 'easy_btc';
-import { PascalCase } from '../util';
-import { GenericLog } from './segments';
-import Snapshot from './transaction_snapshot';
+import { GenericLog } from './log_segments';
 import TransactionTitle from './transaction_title_segment';
 
 class ComplexSegmentGroup extends Component {
