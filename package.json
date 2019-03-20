@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "easy_btc": "file:../easy_btc",
+    "easy_btc": "github:steven-sg/meta-btc",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "react-inspector": "^2.3.1",
@@ -11,9 +11,7 @@
     "react-scripts": "^2.1.5",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.83.0",
-    "ts-pnp": "^1.0.0",
-    "typescript": "^3.3.3",
-    "zenscroll": "^4.0.2"
+    "typescript": "^3.3.4000"
   },
   "scripts": {
     "start": "react-scripts start",
