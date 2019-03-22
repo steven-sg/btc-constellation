@@ -1,14 +1,12 @@
-import React, { Component } from 'react'
-import { Dropdown, Message, Transition } from 'semantic-ui-react'
+import React, { Component } from 'react';
+import { Dropdown, Message, Transition } from 'semantic-ui-react';
 import { utils, models } from 'easy_btc';
 import { OperationResult } from '../util';
 
 class AddressDropdown extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
-    const stateOptions = props.addresses.map((address) => {
-      return { key: address, value: address, text: address };
-    });
+    const stateOptions = props.addresses.map(address => ({ key: address, value: address, text: address }));
     stateOptions.push(
       { key: '', value: '', text: 'None' },
     );
@@ -19,11 +17,21 @@ class AddressDropdown extends Component {
       errorMessage: '',
       triggerAnimation: false,
       stateOptions,
+    };
+  }
+
+  get stateOptions() {
+    const { stateOptions, searchQuery } = this.state;
+    const { addresses } = this.props;
+
+    if (searchQuery.length && !addresses.includes(searchQuery)) {
+      const stateOptionsCopy = stateOptions.slice(0);
+      stateOptionsCopy.push({ key: searchQuery, value: searchQuery, text: searchQuery });
     }
+    return stateOptions;
   }
 
   validateAddress = (value) => {
-    // TODO this is the EXACT same code used in payment frame
     if (!value.length) {
       return new OperationResult(true);
     }
@@ -32,19 +40,18 @@ class AddressDropdown extends Component {
       const addressType = utils.getAddressFormat(value).toUpperCase();
       if (addressType !== 'P2PKH') {
         return new OperationResult(false, new Error(
-          `Address type ${addressType} is not supported. Please supply a P2PKH address.`
+          `Address type ${addressType} is not supported. Please supply a P2PKH address.`,
         ));
       }
     } catch (error) {
-
       if (error instanceof models.InvalidInputError) {
         return new OperationResult(false, new Error(
-          `Unrecognised address format. Please supply a P2PKH address.`
+          'Unrecognised address format. Please supply a P2PKH address.',
         ));
       }
 
       return new OperationResult(false, new Error(
-        `An unexpected error has occurred.`
+        'An unexpected error has occurred.',
       ));
     }
 
@@ -54,18 +61,18 @@ class AddressDropdown extends Component {
       if (network !== expectedNetwork) {
         return new OperationResult(false, new Error(
           `This address belongs to an compatible network: ${network}.
-          Please use an address from the ${expectedNetwork} or create a new ${network} transaction.`
+          Please use an address from the ${expectedNetwork} or create a new ${network} transaction.`,
         ));
       }
     } catch (error) {
       if (error instanceof models.InvalidInputError) {
         return new OperationResult(false, new Error(
-          `Unrecognised address network. Please supply a P2PKH address.`
+          'Unrecognised address network. Please supply a P2PKH address.',
         ));
       }
 
       return new OperationResult(false, new Error(
-        `An unexpected error has occurred.`
+        'An unexpected error has occurred.',
       ));
     }
 
@@ -75,17 +82,19 @@ class AddressDropdown extends Component {
   handleChange = (e, { value }) => {
     const validation = this.validateAddress(value);
     if (validation.success) {
+      const { setReturnAddress } = this.props;
       this.setState({
-        value: value,
+        value,
         error: false,
         errorMessage: '',
       });
-      this.props.setReturnAddress(value);
+      setReturnAddress(value);
     } else {
+      const { triggerAnimation } = this.state;
       this.setState({
         error: true,
         errorMessage: validation.error.message,
-        triggerAnimation: !this.state.triggerAnimation,
+        triggerAnimation: !triggerAnimation,
       });
     }
   }
@@ -110,43 +119,38 @@ class AddressDropdown extends Component {
     }
   }
 
-  get stateOptions () {
-    const stateOptions = this.state.stateOptions.slice(0);
-    if (this.state.searchQuery.length && !this.props.addresses.includes(this.state.searchQuery)) {
-      stateOptions.push({ key: this.state.searchQuery, value: this.state.searchQuery, text: this.state.searchQuery });
-    }
-    return stateOptions;
-  }
   render() {
-    const { searchQuery, value } = this.state
+    const {
+      searchQuery, value, error, errorMessage, triggerAnimation,
+    } = this.state;
 
     return (
-      <div style={{flexGrow: 1}}>
-        { this.state.error &&
-          <Transition animation='shake' duration={200} visible={this.state.triggerAnimation}>
-            <Message error
-                    header='Invalid Input'
-                    content={
-                      <p style={{overflowWrap: 'break-word'}}>
-                        {this.state.errorMessage}
-                      </p>
-                    }/>
-          </Transition>
+      <div style={{ flexGrow: 1 }}>
+        { error
+          && (
+            <Transition animation="shake" duration={200} visible={triggerAnimation}>
+              <Message
+                error
+                header="Invalid Input"
+                content={<p style={{ overflowWrap: 'break-word' }}>{errorMessage}</p>}
+              />
+            </Transition>
+          )
         }
         <Dropdown
           fluid
           onChange={this.handleChange}
           onSearchChange={this.handleSearchChange}
           options={this.stateOptions}
-          placeholder='Select Return Address'
+          placeholder="Select Return Address"
           search
           searchQuery={searchQuery}
           selection
           value={value}
-          error={this.state.error}
+          error={error}
         />
       </div>
-    )
+    );
   }
 }
 export default AddressDropdown;
