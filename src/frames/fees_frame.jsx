@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { lightLime, lime } from '../style/colors';
 import { Input, Dropdown, Message, Transition } from 'semantic-ui-react'
-import AddressList from './fees_address_list';
 import transferIcon from '../icons/bitcoin-transfer.svg';
 import AddressDropdown from './address_dropdown';
 import { fees, transaction, models, currency } from 'easy_btc';
@@ -86,7 +85,7 @@ class FeesFrame extends Component {
     let payments = this.props.payments;
     let balance = 0;
     if (presetPayment) {
-      payments = [...payments, presetPayment]
+      payments = [...payments, presetPayment];
       balance = presetPayment.amount;
     }
     const modTx = transaction.createSignedTransaction(
@@ -165,9 +164,7 @@ class FeesFrame extends Component {
     const size = fees.formatSize(this.state.size, this.state.sizeUnit);
     return (
       <div style={{flexGrow: '1', display: 'flex', flexDirection:'column', overflowY:'auto'}}>
-        <div style={{flexGrow: '1', display: 'flex', background: lime, margin: '0.5rem 0.5rem 0 0.5rem', borderRadius: '0.5rem 0.5rem 0 0'}}>
-          <img style={{flexGrow:1}} src={transferIcon} alt={'transferIcon'}/>
-        </div>
+        <div style={{flexGrow: '1', display: 'flex', background: lime, margin: '0.5rem 0.5rem 0 0.5rem', borderRadius: '0.5rem 0.5rem 0 0', backgroundImage: `url(${transferIcon})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'center'}} />
         <div style={{display: 'flex', flexDirection:'column', background: lime, margin: '0 0.5rem 0.5rem 0.5rem', borderRadius: '0 0 0.5rem 0.5rem'}}>
           <div style={{fontSize: '2em', margin: '2rem 2rem 1rem 2rem', textAlign:'center'}}>Remaining Balance: {`${remainingBalance} ${this.props.currency}`}</div>
           <div style={{display: 'flex', margin:'1rem 2rem 2rem 2rem'}}>

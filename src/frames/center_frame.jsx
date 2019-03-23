@@ -49,7 +49,7 @@ const navLookup = [
 class CenterFrame extends Component {
   constructor(props) {
     super(props);
-    this.state = this.defaultState;
+    this.state = CenterFrame.defaultState;
   }
 
   static get defaultState() {
@@ -86,7 +86,7 @@ class CenterFrame extends Component {
   }
 
   reset = () => {
-    this.setState(this.defaultState);
+    this.setState(CenterFrame.defaultState);
   }
 
   handleOpenModal = () => {

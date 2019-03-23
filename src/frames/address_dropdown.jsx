@@ -23,10 +23,10 @@ class AddressDropdown extends Component {
   get stateOptions() {
     const { stateOptions, searchQuery } = this.state;
     const { addresses } = this.props;
-
     if (searchQuery.length && !addresses.includes(searchQuery)) {
       const stateOptionsCopy = stateOptions.slice(0);
       stateOptionsCopy.push({ key: searchQuery, value: searchQuery, text: searchQuery });
+      return stateOptionsCopy;
     }
     return stateOptions;
   }
