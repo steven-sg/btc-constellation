@@ -1,23 +1,23 @@
 self.__precacheManifest = [
   {
-    "revision": "d27dc4cc780c4ab0676c",
+    "revision": "ede72e98c45d26784d3b",
     "url": "/btc-constellation/static/css/main.d9ad7391.chunk.css"
   },
   {
-    "revision": "d27dc4cc780c4ab0676c",
-    "url": "/btc-constellation/static/js/main.d27dc4cc.chunk.js"
+    "revision": "ede72e98c45d26784d3b",
+    "url": "/btc-constellation/static/js/main.58d638b2.chunk.js"
   },
   {
-    "revision": "f35f76a8fc1b8b423863",
-    "url": "/btc-constellation/static/js/runtime~main.f35f76a8.js"
+    "revision": "40443411e9c5bb05f006",
+    "url": "/btc-constellation/static/js/runtime~main.b984ce93.js"
   },
   {
-    "revision": "88f11bedf6a549035662",
-    "url": "/btc-constellation/static/css/2.4b5db4cd.chunk.css"
+    "revision": "ad730ba6cbba9edd9c28",
+    "url": "/btc-constellation/static/css/2.2a244401.chunk.css"
   },
   {
-    "revision": "88f11bedf6a549035662",
-    "url": "/btc-constellation/static/js/2.88f11bed.chunk.js"
+    "revision": "ad730ba6cbba9edd9c28",
+    "url": "/btc-constellation/static/js/2.ac7bacb2.chunk.js"
   },
   {
     "revision": "454eb9464f8d5bc35a4cf46f91a9996b",
@@ -72,12 +72,12 @@ self.__precacheManifest = [
     "url": "/btc-constellation/static/media/publish_transaction.ab1658e8.png"
   },
   {
-    "revision": "ef60a4f6c25ef7f39f2d25a748dbecfe",
-    "url": "/btc-constellation/static/media/outline-icons.ef60a4f6.woff"
-  },
-  {
     "revision": "cd6c777f1945164224dee082abaea03a",
     "url": "/btc-constellation/static/media/outline-icons.cd6c777f.woff2"
+  },
+  {
+    "revision": "ef60a4f6c25ef7f39f2d25a748dbecfe",
+    "url": "/btc-constellation/static/media/outline-icons.ef60a4f6.woff"
   },
   {
     "revision": "701ae6abd4719e9c2ada3535a497b341",
@@ -88,12 +88,12 @@ self.__precacheManifest = [
     "url": "/btc-constellation/static/media/outline-icons.ad97afd3.ttf"
   },
   {
-    "revision": "9c74e172f87984c48ddf5c8108cabe67",
-    "url": "/btc-constellation/static/media/flags.9c74e172.png"
-  },
-  {
     "revision": "0ab54153eeeca0ce03978cc463b257f7",
     "url": "/btc-constellation/static/media/icons.0ab54153.woff2"
+  },
+  {
+    "revision": "9c74e172f87984c48ddf5c8108cabe67",
+    "url": "/btc-constellation/static/media/flags.9c74e172.png"
   },
   {
     "revision": "faff92145777a3cbaf8e7367b4807987",
@@ -136,7 +136,7 @@ self.__precacheManifest = [
     "url": "/btc-constellation/static/media/brand-icons.a1a749e8.svg"
   },
   {
-    "revision": "8fdd67054d4e84f84dd3b1aa31e08396",
+    "revision": "40ce9e62324ec6a81dd8744fab82d5ed",
     "url": "/btc-constellation/index.html"
   }
 ];
